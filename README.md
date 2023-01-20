@@ -171,6 +171,19 @@ Check there are no warnings and the generated version is the one that you expect
 
 **Something very important: you have to keep your release directory as is until the very end of the release, so for a `.0.Final` spread over several weeks, be sure you don't clean it up to release a new micro of the previous branch. My advice: create one `quarkus-release` directory per long term version (e.g. `quarkus-release` for the usual releases, `quarkus-release-1.7` for 1.7, `quarkus-release-1.3` for 1.3).**
 
+### Releasing an alpha of 3.0
+
+To release a new alpha of the 3.0 branch:
+```
+./prerequisites.java --micro --branch=3.0 --maintenance --qualifier=AlphaX
+```
+
+Replace `X` by the number of the alpha.
+
+Check there are no warnings and the generated version is the one that you expect.
+
+**Something very important: you have to keep your release directory as is until the very end of the release, so for a `.0.Final` spread over several weeks, be sure you don't clean it up to release a new micro of the previous branch. My advice: create one `quarkus-release` directory per long term version (e.g. `quarkus-release` for the usual releases, `quarkus-release-1.7` for 1.7, `quarkus-release-1.3` for 1.3).**
+
 ## Release
 
 1. **Be sure you use either JDK 8 for versions < 2.0 or JDK 11 for versions >= 2.0 to release**
