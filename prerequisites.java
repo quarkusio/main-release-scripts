@@ -151,6 +151,10 @@ public class prerequisites implements Runnable {
             if (maintenance) {
                 new File("work/maintenance").createNewFile();
             }
+
+            if (!newVersion.endsWith(".Final")) {
+                new File("work/preview").createNewFile();
+            }
         } catch (IOException e) {
             e.printStackTrace();
             fail("IOException was thrown, please see above");

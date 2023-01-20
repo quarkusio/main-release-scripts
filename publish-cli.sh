@@ -25,5 +25,11 @@ else
   MAINTENANCE="false"
 fi
 
-./work/quarkus/devtools/cli/distribution/release-cli.sh $VERSION $BRANCH $MAINTENANCE
+if [ -f work/preview ]; then
+  PREVIEW="true"
+else
+  PREVIEW="false"
+fi
+
+./work/quarkus/devtools/cli/distribution/release-cli.sh $VERSION $BRANCH $MAINTENANCE $PREVIEW
 
