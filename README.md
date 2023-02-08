@@ -175,7 +175,7 @@ Check there are no warnings and the generated version is the one that you expect
 
 To release a new alpha of the 3.0 branch:
 ```
-./prerequisites.java --micro --branch=3.0 --maintenance --qualifier=AlphaX
+./prerequisites.java --micro --branch=3.0 --preview --qualifier=AlphaX
 ```
 
 Replace `X` by the number of the alpha.
