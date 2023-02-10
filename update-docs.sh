@@ -10,6 +10,11 @@ else
   BRANCH=$1
 fi
 
+if [ -f work/preview ]; then
+  echo "We do not update the docs for preview releases"
+  exit 1
+fi
+
 pushd work/quarkus/docs
 QUARKUS_WEB_SITE_PUSH=true QUARKUS_RELEASE=true ./sync-web-site.sh ${BRANCH}
 popd
