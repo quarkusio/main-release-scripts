@@ -13,6 +13,10 @@ if [ -f work/maintenance ]; then
   echo "JBang catalog should not be updated for maintenance releases, exiting"
   exit 0
 fi
+if [ -f work/preview ]; then
+  echo "JBang catalog should not be updated for preview releases, exiting"
+  exit 0
+fi
 
 echo "Cloning Quarkus JBang catalog"
 git clone git@github.com:quarkusio/jbang-catalog.git work/jbang-catalog
