@@ -37,6 +37,9 @@ public class postplatformrelease implements Runnable {
 
     private static final String RELEASE_NOTEWORTHY_FEATURE_LABEL = "release/noteworthy-feature";
 
+    // This doesn't need to be exact, just good enough
+    private static final Pattern ANNOTATION_PATTERN = Pattern.compile("((?<!`)@[\\w\\.]+)", Pattern.CASE_INSENSITIVE);
+
     @Override
     public void run() {
         try {
@@ -55,7 +58,7 @@ public class postplatformrelease implements Runnable {
 
             List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
 
-            createRelease(repository, issues, version);
+            createOrUpdateRelease(repository, issues, version);
             createAnnounce(version, getNextVersion(version), issues);
         } catch (IOException e) {
             e.printStackTrace();
@@ -63,8 +66,16 @@ public class postplatformrelease implements Runnable {
         }
     }
 
-    private static void createRelease(GHRepository repository, List<GHIssue> issues, String version) throws IOException {
-        GHRelease release = repository.createRelease(version)
+    private static void createOrUpdateRelease(GHRepository repository, List<GHIssue> issues, String version) throws IOException {
+        GHRelease release = repository.getReleaseByTagName(version);
+
+        if (release != null) {
+            release.update().body(createReleaseDescription(issues)).update();
+            System.out.println("Release " + version + " updated - " + release.getHtmlUrl());
+            return;
+        }
+
+        release = repository.createRelease(version)
             .name(version)
             .body(createReleaseDescription(issues))
             .prerelease(!version.endsWith("Final"))
@@ -87,7 +98,8 @@ public class postplatformrelease implements Runnable {
     }
 
     private static String issueTitleInMarkdown(GHIssue issue) {
-        return "[#" + issue.getNumber() + "](" + issue.getHtmlUrl() + ") - " + issue.getTitle();
+        return "[#" + issue.getNumber() + "](" + issue.getHtmlUrl() + ") - " +
+                ANNOTATION_PATTERN.matcher(issue.getTitle()).replaceAll("`$1`");
     }
 
     private static String createReleaseDescription(List<GHIssue> issues) throws IOException {
