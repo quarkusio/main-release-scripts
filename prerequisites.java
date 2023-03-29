@@ -182,7 +182,7 @@ public class prerequisites implements Runnable {
     }
 
     private static void fail(String message) {
-        System.err.println(message);
+        System.err.println("[ERROR] " + message);
         System.exit(2);
     }
 
