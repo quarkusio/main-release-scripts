@@ -167,7 +167,7 @@ public class prerequisites implements Runnable {
                 .findFirst();
         
         if (milestoneOptional.isEmpty()) {
-            System.err.println("[WARNING] No milestone found with version " + version);
+            fail("No milestone found with version " + version);
         } else {
             GHMilestone milestone = milestoneOptional.get();
             System.out.println("Found milestone " + milestone.getTitle());
