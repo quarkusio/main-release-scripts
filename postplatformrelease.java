@@ -53,7 +53,7 @@ public class postplatformrelease implements Runnable {
             if (milestoneOptional.isEmpty()) {
                 fail("Cannot find the CLOSED milestone " + version + ". Either the milestone does not exist or it is not closed.");
             }
-            
+
             GHMilestone milestone = milestoneOptional.get();
 
             List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
@@ -121,7 +121,7 @@ public class postplatformrelease implements Runnable {
         }
 
         String description = descriptionSb.toString();
-    
+
         Files.writeString(Path.of("work", "release"), description, StandardCharsets.UTF_8);
         return description;
     }
@@ -157,9 +157,6 @@ public class postplatformrelease implements Runnable {
             "\n" +
             "* Changelog and Download are available from https://github.com/quarkusio/quarkus/releases/tag/" + version + "\n" +
             "* Documentation: https://quarkus.io\n" +
-            "\n" +
-            "Next release should be cut in roughly four weeks. It will be " + newVersion + ".\n" +
-            "Again, if you really want to see a feature or something in this release, don’t forget to mention it in your PR or issue.\n" +
             "\n" +
             "The Quarkus dev team";
 

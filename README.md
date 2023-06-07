@@ -101,7 +101,7 @@ For that, we have the Backports application: https://github.com/quarkusio/quarku
 Then you just go through the list of PRs to backport:
 
  * Update to latest upstream: `git remote update upstream`
- * Create a `X.Y.Z-backports-n` branch based on the `X.Y` branch 
+ * Create a `X.Y.Z-backports-n` branch based on the `X.Y` branch
  * Cherry-pick button to copy/paste the cherry-pick command
  * Paste that in a terminal and execute it
  * Mark the PR as Done in the application
@@ -335,7 +335,7 @@ If you have any issue with the code.quarkus.io release infrastructure:
 Push to production deployment build: https://ci.ext.devshift.net/view/code-quarkus/job/openshift-saas-deploy-saas-quarkus-quarkus-production/
 
 Archives:
- 
+
  * https://github.com/quarkusio/code.quarkus.io-release
 
 </details>
@@ -344,14 +344,14 @@ Archives:
 
 In a fresh/updated clone of https://github.com/quarkusio/quarkusio.github.io:
 
-1. Update the `_data/versions.yaml` file of the website (the blog post must be pusblished first)
-2. Update `_data/guides-latest.yaml` with all the newly created guides (execute `./unlinkedguides.java` to get the list) - also be careful, the rsync script doesn't remove the deleted files (that's probably something we should fix). Note that some of the entries might have already been added to `_data/guides-main.yaml` and in any case, the new entries should be added there too.
-
-Then:
-
 1. Write a blog post (use the old as a template, template is different if it's a major release or just a micro)
-2. Use `announce-X.Y.Z.Final.txt` to create an email and send it to `quarkus-dev`. Major items are sorted randomly by the script so it's always better to do a manual pass to reorder them. **Don't forget to include the announcement URL**.
-3. Tweet about the release from the QuarkusIO account (use Tweetdeck for that and choose the right identity). **Don't forget to include the announcement URL**.
+2. Update the `_data/versions.yaml` file of the website (the blog post must be pusblished first)
+3. Push your changes
+
+Wait for the website to be published, then:
+
+1. Use `announce-X.Y.Z.Final.txt` to create an email and send it to `quarkus-dev`. Major items are sorted randomly by the script so it's always better to do a manual pass to reorder them. **Don't forget to include the announcement URL**.
+2. Tweet about the release from the QuarkusIO account (use Tweetdeck for that and choose the right identity). **Don't forget to include the announcement URL**.
 
 If upgrading GraalVM is required (i.e. not just recommended), make it prominent.
 
@@ -359,7 +359,7 @@ To get the list of contributors for a given version, you can use:
 
 ```
 git fetch upstream --tags
-git shortlog -s '1.7.0.Final'..'1.8.0.Final' | cut -d$'\t' -f 2 | grep -v dependabot | sort -d -f -i | paste -sd ',' - | sed 's/,/, /g'
+git shortlog -s '3.0.0.Final'..'3.1.0.Final' | cut -d$'\t' -f 2 | grep -v dependabot | sort -d -f -i | paste -sd ',' - | sed 's/,/, /g'
 ```
 
 I usually include the list only for a major release, getting everyone from X.Y.0.Final to X.Y+1.0.Final in the list.
