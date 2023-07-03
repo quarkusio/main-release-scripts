@@ -54,7 +54,7 @@ mvn versions:set-property -Dproperty="quarkus.version" -DnewVersion="${VERSION}"
 mvn versions:set-property -Dproperty="quarkus.platform.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
 mvn versions:set-property -Dproperty="quarkus-plugin.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
 
-for quickstart in *-quickstart; do
+for quickstart in *-quickstart getting-started-*; do
   # Update `index.html` files:
   if [ -f ${quickstart}/src/main/resources/META-INF/resources/index.html ]; then
     # Update quickstarts that use the following template `<li>Quarkus Version: <code>xxx</code></li>`:
