@@ -139,14 +139,14 @@ Then you are ready to configure the release. And you have several options depend
 ### Releasing a CR1
 
 ```
-./prerequisites.java --branch=2.15 --qualifier=CR1
+./prerequisites.java --branch=3.3 --qualifier=CR1
 ```
-This will release a 2.15.0.CR1 release (if you haven't released any 2.15 yet).
+This will release a 3.3.0.CR1 release (if you haven't released any 3.3 yet).
 
 ### Releasing a Final release on top of a CR
 
 ```
-./prerequisites.java --micro --branch=2.15 --qualifier=Final
+./prerequisites.java --micro --branch=3.3
 ```
 (`--micro` is just there for the version number generation, it's a micro on top of the CR1)
 
@@ -164,21 +164,8 @@ Note the `--maintenance` option.
 
 For a standard micro bugfix release for the current branch:
 ```
-./prerequisites.java --micro --branch=2.15
+./prerequisites.java --micro --branch=3.3
 ```
-
-Check there are no warnings and the generated version is the one that you expect.
-
-**Something very important: you have to keep your release directory as is until the very end of the release, so for a `.0.Final` spread over several weeks, be sure you don't clean it up to release a new micro of the previous branch. My advice: create one `quarkus-release` directory per long term version (e.g. `quarkus-release` for the usual releases, `quarkus-release-1.7` for 1.7, `quarkus-release-1.3` for 1.3).**
-
-### Releasing an alpha of 3.0
-
-To release a new alpha of the 3.0 branch:
-```
-./prerequisites.java --micro --qualifier=AlphaX
-```
-
-Replace `X` by the number of the alpha.
 
 Check there are no warnings and the generated version is the one that you expect.
 
@@ -186,7 +173,7 @@ Check there are no warnings and the generated version is the one that you expect
 
 ## Release
 
-1. **Be sure you use either JDK 8 for versions < 2.0 or JDK 11 for versions >= 2.0 to release**
+1. **Be sure you use JDK 11 to release**
 2. Run `./release-prepare.sh` or on Fedora / Ubuntu `./release-prepare.sh ; paplay /usr/share/sounds/freedesktop/stereo/complete.oga`
 3. Wait... a very long time....
 4. Run `./release-perform.sh` or on Fedora / Ubuntu `./release-perform.sh ; paplay /usr/share/sounds/freedesktop/stereo/complete.oga`

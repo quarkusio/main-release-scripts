@@ -74,7 +74,7 @@ public class postplatformrelease implements Runnable {
         release = repository.createRelease(version)
             .name(version)
             .body(createReleaseDescription(issues))
-            .prerelease(!version.endsWith("Final"))
+            .prerelease(Files.exists(Path.of("work/preview")))
             .create();
         System.out.println("Release " + version + " created - " + release.getHtmlUrl());
     }
