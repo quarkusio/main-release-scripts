@@ -1,7 +1,7 @@
 //usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS io.quarkus.platform:quarkus-bom:2.3.1.Final@pom
+//DEPS io.quarkus.platform:quarkus-bom:3.2.2.Final@pom
 //DEPS io.quarkus:quarkus-picocli
-//DEPS org.kohsuke:github-api:1.300
+//DEPS org.kohsuke:github-api:1.315
 
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
@@ -11,7 +11,6 @@
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -125,7 +124,7 @@ public class prerequisites implements Runnable {
             // Check there are no tag with this version
             boolean tagAlreadyExists = repository.listTags().toList().stream()
                     .anyMatch(t -> newVersion.equals(t.getName()));
-            
+
             if (tagAlreadyExists) {
                 fail("There is a tag with name " + newVersion + ", invalid increment");
             }
@@ -165,7 +164,7 @@ public class prerequisites implements Runnable {
         Optional<GHMilestone> milestoneOptional = repository.listMilestones(GHIssueState.OPEN).toList().stream()
                 .filter(m -> version.equals(m.getTitle()))
                 .findFirst();
-        
+
         if (milestoneOptional.isEmpty()) {
             fail("No milestone found with version " + version);
         } else {
@@ -191,7 +190,7 @@ public class prerequisites implements Runnable {
         if (segments.length < 3) {
             fail("Invalid version " + last + ", number of segments must be at least 3, found: " + segments.length);
         }
-        
+
         String newVersion;
         if (micro) {
             if (!qualifier.isBlank()) {

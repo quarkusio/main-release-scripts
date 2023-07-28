@@ -1,7 +1,7 @@
 //usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS io.quarkus.platform:quarkus-bom:2.3.1.Final@pom
+//DEPS io.quarkus.platform:quarkus-bom:3.2.2.Final@pom
 //DEPS io.quarkus:quarkus-picocli
-//DEPS org.kohsuke:github-api:1.300
+//DEPS org.kohsuke:github-api:1.315
 
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
