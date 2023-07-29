@@ -196,12 +196,12 @@ public class prerequisites implements Runnable {
         if (micro) {
             if (segments.length == 3) {
                 // previous version was a final, we increment
-                newVersion = segments[0] + "." + segments[1] + "." + (Integer.valueOf(segments[2]) + 1);
+                newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
             } else {
                 String previousQualifier = segments[3];
                 if ("Final".equals(previousQualifier)) {
                     // previous version was a final, we increment
-                    newVersion = segments[0] + "." + segments[1] + "." + (Integer.valueOf(segments[2]) + 1);
+                    newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
                     // previous version had a Final qualifier so we are releasing a micro of a version with Final qualifiers
                     qualifier = "Final";
                 } else {
@@ -210,9 +210,9 @@ public class prerequisites implements Runnable {
                 }
             }
         } else if (major) {
-            newVersion = (Integer.valueOf(segments[0]) + 1) + ".0.0";
+            newVersion = (Integer.parseInt(segments[0]) + 1) + ".0.0";
         } else {
-            newVersion = segments[0] + "." + (Integer.valueOf(segments[1]) + 1) + ".0";
+            newVersion = segments[0] + "." + (Integer.parseInt(segments[1]) + 1) + ".0";
         }
         if (!qualifier.isBlank()) {
             newVersion = newVersion + "." + qualifier;
