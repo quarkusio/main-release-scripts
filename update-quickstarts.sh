@@ -53,6 +53,7 @@ fi
 mvn versions:set-property -Dproperty="quarkus.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
 mvn versions:set-property -Dproperty="quarkus.platform.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
 mvn versions:set-property -Dproperty="quarkus-plugin.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
+mvn versions:set-property -Dproperty="quarkus.platform.group-id" -DnewVersion="io.quarkus.platform" -DgenerateBackupPoms=false
 
 for quickstart in *-quickstart getting-started-*; do
   # Update `index.html` files:
