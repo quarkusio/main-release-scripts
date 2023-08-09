@@ -7,7 +7,7 @@ if [ -f work/newVersion ]; then
 else
   echo "'work/newVersion' file required"
   exit 1
-fi 
+fi
 if [ $# -eq 0 ]; then
   if [ -f work/maintenance ]; then
     BRANCH=$(cat work/branch)
@@ -16,7 +16,7 @@ if [ $# -eq 0 ]; then
   fi
 else
   BRANCH=$1
-fi 
+fi
 
 if [ -f work/preview ]; then
   echo "We do not update the quickstarts for preview releases"
@@ -45,7 +45,7 @@ EXCLUDE_DOCKERFILE_UPDATE_FOR_QUICKSTARTS="awt-graphics-rest-quickstart"
 cd work/quickstarts
 git checkout $BRANCH || (echo "Branch $BRANCH does not exist, please initialize it with the proper content before running this script" && exit 1)
 
-if [[ $VERSION =~ .*\.0\.Final ]]; then
+if [[ $VERSION =~ .*\.0 ]]; then
   echo "Resetting main to development"
   git reset --hard origin/development
 fi

@@ -1,7 +1,7 @@
 //usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS io.quarkus.platform:quarkus-bom:2.3.1.Final@pom
+//DEPS io.quarkus.platform:quarkus-bom:3.2.2.Final@pom
 //DEPS io.quarkus:quarkus-picocli
-//DEPS org.kohsuke:github-api:1.300
+//DEPS org.kohsuke:github-api:1.315
 
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
@@ -11,7 +11,6 @@
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +34,7 @@ import picocli.CommandLine.Option;
 public class prerequisites implements Runnable {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+$");
+    private static final Pattern FINAL_VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$");
 
     @Option(names = "--micro", description = "Should we release a micro?", defaultValue = "false")
     boolean micro;
@@ -118,14 +118,14 @@ public class prerequisites implements Runnable {
                 if (!qualifier.isBlank()) {
                     newVersion = branch + ".0." + qualifier;
                 } else {
-                    newVersion = branch + ".0.Final";
+                    newVersion = branch + ".0";
                 }
             }
 
             // Check there are no tag with this version
             boolean tagAlreadyExists = repository.listTags().toList().stream()
                     .anyMatch(t -> newVersion.equals(t.getName()));
-            
+
             if (tagAlreadyExists) {
                 fail("There is a tag with name " + newVersion + ", invalid increment");
             }
@@ -152,7 +152,7 @@ public class prerequisites implements Runnable {
                 new File("work/maintenance").createNewFile();
             }
 
-            if (!newVersion.endsWith(".Final")) {
+            if (!newVersion.endsWith(".Final") && !FINAL_VERSION_PATTERN.matcher(newVersion).matches()) {
                 new File("work/preview").createNewFile();
             }
         } catch (IOException e) {
@@ -165,7 +165,7 @@ public class prerequisites implements Runnable {
         Optional<GHMilestone> milestoneOptional = repository.listMilestones(GHIssueState.OPEN).toList().stream()
                 .filter(m -> version.equals(m.getTitle()))
                 .findFirst();
-        
+
         if (milestoneOptional.isEmpty()) {
             fail("No milestone found with version " + version);
         } else {
@@ -186,28 +186,36 @@ public class prerequisites implements Runnable {
         System.exit(2);
     }
 
-    private static String computeNewVersion(String last, boolean micro, boolean major, String qualifier) {
-        String[] segments = last.split("\\.");
+    private static String computeNewVersion(String previousVersion, boolean micro, boolean major, String qualifier) {
+        String[] segments = previousVersion.split("\\.");
         if (segments.length < 3) {
-            fail("Invalid version " + last + ", number of segments must be at least 3, found: " + segments.length);
+            fail("Invalid version " + previousVersion + ", number of segments must be at least 3, found: " + segments.length);
         }
-        
+
         String newVersion;
         if (micro) {
-            if (!qualifier.isBlank()) {
-                newVersion = segments[0] + "." + segments[1] + "." + segments[2];
+            if (segments.length == 3) {
+                // previous version was a final, we increment
+                newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
             } else {
-                newVersion = segments[0] + "." + segments[1] + "." + (Integer.valueOf(segments[2]) + 1);
+                String previousQualifier = segments[3];
+                if ("Final".equals(previousQualifier)) {
+                    // previous version was a final, we increment
+                    newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
+                    // previous version had a Final qualifier so we are releasing a micro of a version with Final qualifiers
+                    qualifier = "Final";
+                } else {
+                    // previous version was a preview, we don't increment
+                    newVersion = segments[0] + "." + segments[1] + "." + segments[2];
+                }
             }
         } else if (major) {
-            newVersion = (Integer.valueOf(segments[0]) + 1) + ".0.0";
+            newVersion = (Integer.parseInt(segments[0]) + 1) + ".0.0";
         } else {
-            newVersion = segments[0] + "." + (Integer.valueOf(segments[1]) + 1) + ".0";
+            newVersion = segments[0] + "." + (Integer.parseInt(segments[1]) + 1) + ".0";
         }
         if (!qualifier.isBlank()) {
             newVersion = newVersion + "." + qualifier;
-        } else {
-            newVersion = newVersion + ".Final";
         }
 
         return newVersion;
