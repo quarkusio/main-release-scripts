@@ -23,6 +23,7 @@ echo "Deploying release"
 export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
 
 mvn clean deploy \
+ -Dscan=false \
  -Dgradle.cache.local.enabled=false \
  -DskipTests -DskipITs \
  -Dno-native=true \
