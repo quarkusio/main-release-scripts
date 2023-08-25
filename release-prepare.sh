@@ -9,14 +9,14 @@ fi
 export VERSION=""
 if [ -f work/newVersion ]; then
   VERSION=$(cat work/newVersion)
-else 
+else
   if [ $# -eq 0 ]
     then
       echo "Release version required, or 'work/newVersion' file"
       exit 1
   fi
   VERSION=$1
-fi 
+fi
 
 if [ -f work/branch ]; then
   BRANCH=$(cat work/branch)
@@ -48,6 +48,7 @@ export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
 
 mvn \
   clean install \
+  -Dgradle.cache.local.enabled=false \
   -Dmaven.repo.local=$(realpath ../repository) \
   -pl !integration-tests/gradle -pl !integration-tests/maven -pl !integration-tests/kubernetes/quarkus-standard-way -pl !integration-tests/kubernetes/maven-invoker-way  \
   -Prelease \
@@ -55,7 +56,7 @@ mvn \
   -Ddokka
 
 echo "Enforcing releases"
-mvn org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce -Drules=requireReleaseVersion,requireReleaseDeps
+mvn -Dgradle.cache.local.enabled=false org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce -Drules=requireReleaseVersion,requireReleaseDeps
 
 echo "Alright, commit"
 git commit -am "[RELEASE] - Bump version to ${VERSION}"
