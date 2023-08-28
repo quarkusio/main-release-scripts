@@ -29,7 +29,8 @@ mvn clean deploy \
  -Dno-native=true \
  -DperformRelease=true \
  -Prelease \
- -Ddokka
+ -Ddokka \
+ -Dno-test-modules
 
 # -Ddocumentation-pdf
 
