@@ -10,8 +10,7 @@ oauth=TOKEN
 
 This token must have write permission on the Quarkus project.
 
-Also, install [Kotlin](https://kotlinlang.org/) and [kscript](https://github.com/holgerbrandl/kscript).
-Installation instructions are in the README.
+Also, install [JBang](https://www.jbang.dev).
 
 You also need a GPG key. How to set it depends on your environment but here are a few hints for current Fedora:
 ```
