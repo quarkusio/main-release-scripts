@@ -331,13 +331,13 @@ Archives:
 In a fresh/updated clone of https://github.com/quarkusio/quarkusio.github.io:
 
 1. Write a blog post (use the old as a template, template is different if it's a major release or just a micro)
-2. Update the `_data/versions.yaml` file of the website (the blog post must be pusblished first)
+2. **If the version is the latest**, update the `_data/versions.yaml` file of the website (the blog post must be published first)
 3. Push your changes
 
 Wait for the website to be published, then:
 
 1. Use `announce-X.Y.Z.Final.txt` to create an email and send it to `quarkus-dev`. Major items are sorted randomly by the script so it's always better to do a manual pass to reorder them. **Don't forget to include the announcement URL**.
-2. Tweet about the release from the QuarkusIO account (use Tweetdeck for that and choose the right identity). **Don't forget to include the announcement URL**.
+2. Tweet about the release from the QuarkusIO account (use Buffer.com for that, you can post to Linked and Mastodon too). **Don't forget to include the announcement URL**.
 
 If upgrading GraalVM is required (i.e. not just recommended), make it prominent.
 
