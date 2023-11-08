@@ -331,7 +331,7 @@ Archives:
 In a fresh/updated clone of https://github.com/quarkusio/quarkusio.github.io:
 
 1. Write a blog post (use the old as a template, template is different if it's a major release or just a micro)
-2. **If the version is the latest**, update the `_data/versions.yaml` file of the website (the blog post must be published first)
+2. **If the version is the latest**, update the `_data/versions.yaml` file (make sure the blog post URL is correct)
 3. Push your changes
 
 Wait for the website to be published, then:
