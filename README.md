@@ -145,25 +145,15 @@ This will release a 3.3.0.CR1 release (if you haven't released any 3.3 yet).
 ### Releasing a Final release on top of a CR
 
 ```
-./prerequisites.java --micro --branch=3.3
+./prerequisites.java --branch=3.3
 ```
 (`--micro` is just there for the version number generation, it's a micro on top of the CR1)
-
-### Releasing a maintenance micro (typically for RHBQ once we have a new community version that is the latest)
-
-:warning: This is only for maintenance branches, once we have a new community version that is the latest. This should be used for additional LTS/RHBQ releases, for instance. See next paragraph for a standard micro release.
-
-For a micro bugfix release for the 2.13 branch:
-```
-./prerequisites.java --micro --branch=2.13 --maintenance
-```
-Note the `--maintenance` option.
 
 ### Releasing a micro for the latest release
 
 For a standard micro bugfix release for the current branch:
 ```
-./prerequisites.java --micro --branch=3.3
+./prerequisites.java --branch=3.3
 ```
 
 Check there are no warnings and the generated version is the one that you expect.
