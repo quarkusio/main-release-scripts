@@ -2,6 +2,7 @@
 //DEPS io.quarkus.platform:quarkus-bom:3.2.2.Final@pom
 //DEPS io.quarkus:quarkus-picocli
 //DEPS org.kohsuke:github-api:1.315
+//DEPS io.smallrye.common:smallrye-common-version:2.2.0
 
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
@@ -14,9 +15,15 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import io.smallrye.common.version.VersionScheme;
 
 import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
@@ -36,20 +43,23 @@ public class prerequisites implements Runnable {
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+$");
     private static final Pattern FINAL_VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$");
 
-    @Option(names = "--micro", description = "Should we release a micro?", defaultValue = "false")
-    boolean micro;
-
-    @Option(names = "--major", description = "Should we release a major?", defaultValue = "false")
-    boolean major;
-
     @Option(names = "--branch", description = "The branch to build the release on", defaultValue = "")
     String branch;
 
     @Option(names = "--qualifier", description = "The qualifier to add to the version. Example: CR1.", defaultValue = "")
     String qualifier;
 
+    @Deprecated(forRemoval = true) // this is automatically resolved now
+    @Option(names = "--micro", description = "Should we release a micro?", defaultValue = "false")
+    boolean micro;
+
+    @Option(names = "--major", description = "Should we release a major?", defaultValue = "false")
+    boolean major;
+
+    @Deprecated(forRemoval = true) // this is automatically resolved now
     @Option(names = "--maintenance", description = "Is it a maintenance branch?", defaultValue = "false")
     boolean maintenance;
+
 
     @Override
     public void run() {
@@ -64,12 +74,12 @@ public class prerequisites implements Runnable {
             GitHub github = GitHubBuilder.fromPropertyFile().build();
             GHRepository repository = getGithubProject(github);
 
-            if (micro) {
-                System.out.println("Releasing a micro release");
-            }
             if (major) {
                 System.out.println("Releasing a major release");
             }
+
+            micro = micro || (!branch.isBlank() && !major);
+
             if (!branch.isBlank()) {
                 if (!VERSION_PATTERN.matcher(branch).matches()) {
                     fail("Branch " + branch + " is not a valid version (X.y)");
@@ -84,14 +94,16 @@ public class prerequisites implements Runnable {
 
             // Retrieve the last tag
             System.out.println("Listing tags of " + repository.getName());
-            List<GHTag> tags = repository.listTags().toList();
+            SortedSet<GHTag> tags = new TreeSet<>(VersionComparator.INSTANCE);
+            tags.addAll(repository.listTags().toList());
+
             if (tags.isEmpty()) {
                 fail("No tags in repository " + repository.getName());
             }
             GHTag tag = null;
             if (branch.isBlank()) {
                 // no branch, we take the last tag
-                tag = tags.get(0);
+                tag = tags.iterator().next();
             } else {
                 // we defined a branch, we determine the last tag with the branch prefix
                 for (GHTag currentTag : tags) {
@@ -123,7 +135,7 @@ public class prerequisites implements Runnable {
             }
 
             // Check there are no tag with this version
-            boolean tagAlreadyExists = repository.listTags().toList().stream()
+            boolean tagAlreadyExists = tags.stream()
                     .anyMatch(t -> newVersion.equals(t.getName()));
 
             if (tagAlreadyExists) {
@@ -131,7 +143,7 @@ public class prerequisites implements Runnable {
             }
 
             // Check there is a milestone with the right name
-            checkIfMilestoneExists(repository, newVersion);
+            //checkIfMilestoneExists(repository, newVersion);
 
             // Completion
             new File("work/").mkdirs();
@@ -145,10 +157,12 @@ public class prerequisites implements Runnable {
             }
 
             if (micro) {
+                System.out.println("Releasing a micro release");
                 new File("work/micro").createNewFile();
             }
 
-            if (maintenance) {
+            if (maintenance || isMaintenance(branch, tags)) {
+                System.out.println("Releasing a maintenance release");
                 new File("work/maintenance").createNewFile();
             }
 
@@ -219,5 +233,36 @@ public class prerequisites implements Runnable {
         }
 
         return newVersion;
+    }
+
+    private static String getCurrentStableBranch(SortedSet<GHTag> tags) {
+        for (GHTag candidate : tags) {
+            String[] segments = candidate.getName().split("\\.");
+            if (segments.length == 3) {
+                // this is the last stable version
+                return segments[0] + "." + segments[1];
+            }
+        }
+
+        fail("Unable to find the current stable branch");
+        return null;
+    }
+
+    private static boolean isMaintenance(String branch, SortedSet<GHTag> tags) {
+        if (branch.isBlank()) {
+            return false;
+        }
+
+        return VersionScheme.MAVEN.compare(getCurrentStableBranch(tags), branch) > 0;
+    }
+
+    private static class VersionComparator implements Comparator<GHTag> {
+
+        private static final VersionComparator INSTANCE = new VersionComparator();
+
+        @Override
+        public int compare(GHTag o1, GHTag o2) {
+            return -VersionScheme.MAVEN.compare(o1.getName(), o2.getName());
+        }
     }
 }
