@@ -43,7 +43,7 @@ public class prerequisites implements Runnable {
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+$");
     private static final Pattern FINAL_VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$");
 
-    @Option(names = "--branch", description = "The branch to build the release on", defaultValue = "")
+    @Option(names = "--branch", description = "The branch to build the release on", required = true)
     String branch;
 
     @Option(names = "--qualifier", description = "The qualifier to add to the version. Example: CR1.", defaultValue = "")
@@ -69,6 +69,9 @@ public class prerequisites implements Runnable {
         if (major && micro) {
             fail("Should be either micro or major, can't be both");
         }
+        if (branch.isBlank()) {
+            fail("Branch should be defined with --branch <branch>");
+        }
 
         try {
             GitHub github = GitHubBuilder.fromPropertyFile().build();
@@ -78,19 +81,17 @@ public class prerequisites implements Runnable {
                 System.out.println("Releasing a major release");
             }
 
-            micro = micro || (!branch.isBlank() && !major);
+            micro = micro || (!isMain(branch) && !major);
 
-            if (!branch.isBlank()) {
-                if (!VERSION_PATTERN.matcher(branch).matches()) {
-                    fail("Branch " + branch + " is not a valid version (X.y)");
-                }
-                try {
-                    repository.getBranch(branch);
-                } catch (GHFileNotFoundException e) {
-                    fail("Branch " + branch + " does not exist in the repository");
-                }
-                System.out.println("Working on branch: " + branch);
+            if (!VERSION_PATTERN.matcher(branch).matches() && !isMain(branch)) {
+                fail("Branch " + branch + " is not a valid version (X.y)");
             }
+            try {
+                repository.getBranch(branch);
+            } catch (GHFileNotFoundException e) {
+                fail("Branch " + branch + " does not exist in the repository");
+            }
+            System.out.println("Working on branch: " + branch);
 
             // Retrieve the last tag
             System.out.println("Listing tags of " + repository.getName());
@@ -101,7 +102,7 @@ public class prerequisites implements Runnable {
                 fail("No tags in repository " + repository.getName());
             }
             GHTag tag = null;
-            if (branch.isBlank()) {
+            if (isMain(branch)) {
                 // no branch, we take the last tag
                 tag = tags.iterator().next();
             } else {
@@ -143,7 +144,7 @@ public class prerequisites implements Runnable {
             }
 
             // Check there is a milestone with the right name
-            //checkIfMilestoneExists(repository, newVersion);
+            checkIfMilestoneExists(repository, newVersion);
 
             // Completion
             new File("work/").mkdirs();
@@ -151,10 +152,8 @@ public class prerequisites implements Runnable {
             System.out.println("Writing " + newVersion + " into the 'work/newVersion' file");
             Files.writeString(Path.of("work", "newVersion"), newVersion, StandardCharsets.UTF_8);
 
-            if (!branch.isBlank()) {
-                System.out.println("Writing " + branch + " into the 'work/branch' file");
-                Files.writeString(Path.of("work", "branch"), branch, StandardCharsets.UTF_8);
-            }
+            System.out.println("Writing " + branch + " into the 'work/branch' file");
+            Files.writeString(Path.of("work", "branch"), branch, StandardCharsets.UTF_8);
 
             if (micro) {
                 System.out.println("Releasing a micro release");
@@ -249,11 +248,15 @@ public class prerequisites implements Runnable {
     }
 
     private static boolean isMaintenance(String branch, SortedSet<GHTag> tags) {
-        if (branch.isBlank()) {
+        if (isMain(branch)) {
             return false;
         }
 
         return VersionScheme.MAVEN.compare(getCurrentStableBranch(tags), branch) > 0;
+    }
+
+    private static boolean isMain(String branch) {
+        return "main".equals(branch);
     }
 
     private static class VersionComparator implements Comparator<GHTag> {
