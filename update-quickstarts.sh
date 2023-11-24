@@ -24,7 +24,11 @@ if [ -f work/preview ]; then
 fi
 
 echo "Cloning quickstart"
-git clone git@github.com:quarkusio/quarkus-quickstarts.git work/quickstarts
+if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
+  git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/quarkus-quickstarts.git work/quickstarts
+else
+  git clone git@github.com:quarkusio/quarkus-quickstarts.git work/quickstarts
+fi
 
 echo "Disabling protection"
 if [[ $BRANCH == "main" ]]; then

@@ -74,7 +74,13 @@ public class prerequisites implements Runnable {
         }
 
         try {
-            GitHub github = GitHubBuilder.fromPropertyFile().build();
+            GitHub github;
+            String releaseGitHubToken = System.getenv("RELEASE_GITHUB_TOKEN");
+            if (releaseGitHubToken != null && !releaseGitHubToken.isBlank()) {
+                github = new GitHubBuilder().withOAuthToken(releaseGitHubToken).build();
+            } else {
+                github = GitHubBuilder.fromPropertyFile().build();
+            }
             GHRepository repository = getGithubProject(github);
 
             if (major) {

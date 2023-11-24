@@ -29,7 +29,13 @@ public class postcorerelease implements Runnable {
     @Override
     public void run() {
         try {
-            GitHub github = GitHubBuilder.fromPropertyFile().build();
+            GitHub github;
+            String releaseGitHubToken = System.getenv("RELEASE_GITHUB_TOKEN");
+            if (releaseGitHubToken != null && !releaseGitHubToken.isBlank()) {
+                github = new GitHubBuilder().withOAuthToken(releaseGitHubToken).build();
+            } else {
+                github = GitHubBuilder.fromPropertyFile().build();
+            }
             GHRepository repository = getProject(github);
 
             String version = getVersion();

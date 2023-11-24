@@ -7,7 +7,7 @@ if [ -f work/newVersion ]; then
 else
   echo "'work/newVersion' file required"
   exit 1
-fi 
+fi
 
 if [ -f work/maintenance ]; then
   echo "JBang catalog should not be updated for maintenance releases, exiting"
@@ -19,7 +19,11 @@ if [ -f work/preview ]; then
 fi
 
 echo "Cloning Quarkus JBang catalog"
-git clone git@github.com:quarkusio/jbang-catalog.git work/jbang-catalog
+if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
+  git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/jbang-catalog.git work/jbang-catalog
+else
+  git clone git@github.com:quarkusio/jbang-catalog.git work/jbang-catalog
+fi
 
 cd work/jbang-catalog
 
