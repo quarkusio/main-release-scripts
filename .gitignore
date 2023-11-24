@@ -21,3 +21,4 @@ announce-*.txt
 *.swp
 *.swo
 
+.vscode/

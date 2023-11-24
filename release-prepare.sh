@@ -33,7 +33,11 @@ fi
 echo "Preparing release ${VERSION} on branch ${BRANCH}"
 
 echo "Cloning quarkus"
-git clone git@github.com:quarkusio/quarkus.git work/quarkus
+if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
+  git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/gsmet/quarkus.git work/quarkus
+else
+  git clone git@github.com:quarkusio/quarkus.git work/quarkus
+fi
 
 cd work/quarkus
 git checkout ${BRANCH}
