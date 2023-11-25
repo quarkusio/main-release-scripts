@@ -44,7 +44,7 @@ echo "Update version to ${VERSION}"
 
 export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
 
-mvn \
+./mvnw \
   clean install \
   -Dscan=false \
   -Dgradle.cache.local.enabled=false \
