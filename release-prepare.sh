@@ -24,12 +24,6 @@ else
   BRANCH="HEAD"
 fi
 
-if [ -z "${GRAALVM_HOME}" ]
-  then
-    echo "GRAALVM_HOME must be defined"
-    exit 2
-fi
-
 echo "Preparing release ${VERSION} on branch ${BRANCH}"
 
 echo "Cloning quarkus"
