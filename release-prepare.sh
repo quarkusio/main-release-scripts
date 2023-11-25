@@ -51,7 +51,6 @@ fi
   clean install \
   -Dscan=false \
   -Dgradle.cache.local.enabled=false \
-  -Dmaven.repo.local=$(realpath ../repository) \
   -Prelease \
   -DskipTests -DskipITs \
   -Ddokka \
