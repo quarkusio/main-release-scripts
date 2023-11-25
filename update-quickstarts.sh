@@ -40,7 +40,7 @@ TEMPLATE_FOLDER=$(mktemp -d)
 TEMPLATE_NAME=REPLACE_WITH_QUICKSTART_NAME
 pushd $TEMPLATE_FOLDER
 # Using "io.quarkus:quarkus-maven-plugin" to work with either 999-SNAPSHOT and a released version
-mvn io.quarkus:quarkus-maven-plugin:${VERSION}:create -DprojectGroupId=org.acme -DprojectArtifactId=$TEMPLATE_NAME
+mvn -e -B io.quarkus:quarkus-maven-plugin:${VERSION}:create -DprojectGroupId=org.acme -DprojectArtifactId=$TEMPLATE_NAME
 popd
 DOCKERFILES=(Dockerfile.jvm Dockerfile.legacy-jar Dockerfile.native Dockerfile.native-micro)
 # List of quickstarts that should not update the Dockerfile resources (list separated by comma)
@@ -54,10 +54,10 @@ if [[ $VERSION =~ .*\.0 ]]; then
   git reset --hard origin/development
 fi
 
-mvn versions:set-property -Dproperty="quarkus.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
-mvn versions:set-property -Dproperty="quarkus.platform.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
-mvn versions:set-property -Dproperty="quarkus-plugin.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
-mvn versions:set-property -Dproperty="quarkus.platform.group-id" -DnewVersion="io.quarkus.platform" -DgenerateBackupPoms=false
+./mvnw -e -B versions:set-property -Dproperty="quarkus.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
+./mvnw -e -B versions:set-property -Dproperty="quarkus.platform.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
+./mvnw -e -B versions:set-property -Dproperty="quarkus-plugin.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
+./mvnw -e -B versions:set-property -Dproperty="quarkus.platform.group-id" -DnewVersion="io.quarkus.platform" -DgenerateBackupPoms=false
 
 for quickstart in *-quickstart getting-started-*; do
   # Update `index.html` files:
@@ -83,7 +83,7 @@ for quickstart in *-quickstart getting-started-*; do
   fi
 done
 
-mvn clean install -DskipTests -DskipITs
+./mvnw -e -B clean install -DskipTests -DskipITs
 
 echo "Alright, let's commit!"
 git commit -am "[RELEASE] - Bump version to ${VERSION}"
