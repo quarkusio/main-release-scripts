@@ -20,7 +20,9 @@ git checkout "${VERSION}"
 
 echo "Deploying release"
 
-export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
+if [ -z "${RELEASE_GITHUB_TOKEN}" ]; then
+  export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
+fi
 
 ./mvnw clean deploy \
  -e -B \
