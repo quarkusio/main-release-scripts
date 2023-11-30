@@ -222,9 +222,16 @@ For other releases (either CRs or micros), you can continue.
 
 **Before going through this step, make sure the Platform artifacts are properly available on Maven Central by checking https://repo1.maven.org/maven2/io/quarkus/quarkus-universe-bom/ and waiting 5 more minutes to make sure everything is synced.**
 
-You need to publish the extension catalog for the new version by running the GitHub Action workflow here: https://github.com/quarkusio/quarkus-extension-catalog/actions/workflows/check_updates.yaml.
+Run:
 
-In the `Run Check Updates script` section of the log, just after the jBang initialization, you should see something like:
+```
+./updateextensioncatalog.java
+```
+
+This will trigger a new workflow run here: https://github.com/quarkusio/quarkus-extension-catalog/actions/workflows/check_updates.yaml.
+
+This workflow is very stable so you don't really have to check its execution.
+But if you want to do it, in the `Run Check Updates script` section of the log, just after the JBang initialization, you should see something like:
 
 ```
 [jbang] or visit https://jbang.dev to download and install it yourself.
