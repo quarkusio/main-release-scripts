@@ -1,8 +1,8 @@
 //usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS io.quarkus.platform:quarkus-bom:3.2.2.Final@pom
+//DEPS io.quarkus.platform:quarkus-bom:3.6.0@pom
 //DEPS io.quarkus:quarkus-picocli
 //DEPS org.kohsuke:github-api:1.315
-//DEPS io.smallrye.common:smallrye-common-version:2.2.0
+//DEPS org.apache.maven:maven-artifact:3.9.6
 
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
@@ -17,13 +17,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NavigableSet;
 import java.util.Optional;
-import java.util.SortedSet;
+import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import io.smallrye.common.version.VersionScheme;
 
 import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHIssueState;
@@ -33,6 +32,7 @@ import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GHTag;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.apache.maven.artifact.versioning.ComparableVersion;
 
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
@@ -101,20 +101,25 @@ public class prerequisites implements Runnable {
 
             // Retrieve the last tag
             System.out.println("Listing tags of " + repository.getName());
-            SortedSet<GHTag> tags = new TreeSet<>(VersionComparator.INSTANCE);
-            tags.addAll(repository.listTags().toList());
+            NavigableSet<ComparableVersion> tags = new TreeSet<>();
+            tags.addAll(repository.listTags().toList().stream()
+                    .map(t -> t.getName())
+                    .map(n -> new ComparableVersion(n))
+                    .collect(Collectors.toList()));
+
+            tags = tags.descendingSet();
 
             if (tags.isEmpty()) {
                 fail("No tags in repository " + repository.getName());
             }
-            GHTag tag = null;
+            ComparableVersion tag = null;
             if (isMain(branch)) {
                 // no branch, we take the last tag
                 tag = tags.iterator().next();
             } else {
                 // we defined a branch, we determine the last tag with the branch prefix
-                for (GHTag currentTag : tags) {
-                    if (currentTag.getName().startsWith(branch + ".")) {
+                for (ComparableVersion currentTag : tags) {
+                    if (currentTag.toString().startsWith(branch + ".")) {
                         tag = currentTag;
                         break;
                     }
@@ -123,16 +128,16 @@ public class prerequisites implements Runnable {
 
             String newVersion;
             if (tag != null) {
-                System.out.println("Last tag is: " + tag.getName());
+                System.out.println("Last tag is: " + tag);
 
                 // Retrieve the associated release
-                GHRelease release = repository.getReleaseByTagName(tag.getName());
+                GHRelease release = repository.getReleaseByTagName(tag.toString());
                 if (release == null) {
-                    System.err.println("[WARNING] No release associated with tag " + tag.getName());
+                    System.err.println("[WARNING] No release associated with tag " + tag);
                 }
 
                 // All good, compute new version.
-                newVersion = computeNewVersion(tag.getName(), micro, major, qualifier);
+                newVersion = computeNewVersion(tag.toString(), micro, major, qualifier);
             } else {
                 if (!qualifier.isBlank()) {
                     newVersion = branch + ".0." + qualifier;
@@ -143,7 +148,7 @@ public class prerequisites implements Runnable {
 
             // Check there are no tag with this version
             boolean tagAlreadyExists = tags.stream()
-                    .anyMatch(t -> newVersion.equals(t.getName()));
+                    .anyMatch(t -> newVersion.equals(t.toString()));
 
             if (tagAlreadyExists) {
                 fail("There is a tag with name " + newVersion + ", invalid increment");
@@ -240,9 +245,9 @@ public class prerequisites implements Runnable {
         return newVersion;
     }
 
-    private static String getCurrentStableBranch(SortedSet<GHTag> tags) {
-        for (GHTag candidate : tags) {
-            String[] segments = candidate.getName().split("\\.");
+    private static String getCurrentStableBranch(Set<ComparableVersion> tags) {
+        for (ComparableVersion candidate : tags) {
+            String[] segments = candidate.toString().split("\\.");
             if (segments.length == 3) {
                 // this is the last stable version
                 return segments[0] + "." + segments[1];
@@ -253,25 +258,15 @@ public class prerequisites implements Runnable {
         return null;
     }
 
-    private static boolean isMaintenance(String branch, SortedSet<GHTag> tags) {
+    private static boolean isMaintenance(String branch, Set<ComparableVersion> tags) {
         if (isMain(branch)) {
             return false;
         }
 
-        return VersionScheme.MAVEN.compare(getCurrentStableBranch(tags), branch) > 0;
+        return new ComparableVersion(getCurrentStableBranch(tags)).compareTo(new ComparableVersion(branch)) > 0;
     }
 
     private static boolean isMain(String branch) {
         return "main".equals(branch);
-    }
-
-    private static class VersionComparator implements Comparator<GHTag> {
-
-        private static final VersionComparator INSTANCE = new VersionComparator();
-
-        @Override
-        public int compare(GHTag o1, GHTag o2) {
-            return -VersionScheme.MAVEN.compare(o1.getName(), o2.getName());
-        }
     }
 }
