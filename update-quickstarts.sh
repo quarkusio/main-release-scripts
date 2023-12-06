@@ -23,6 +23,9 @@ if [ -f work/preview ]; then
   exit 1
 fi
 
+echo "Cleaning up work/quickstarts directory if exists"
+rm -rf work/quickstarts
+
 echo "Cloning quickstart"
 if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
   git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/quarkus-quickstarts.git work/quickstarts

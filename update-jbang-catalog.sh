@@ -18,6 +18,9 @@ if [ -f work/preview ]; then
   exit 0
 fi
 
+echo "Cleaning up jbang-catalog directory if exists"
+rm -rf work/jbang-catalog
+
 echo "Cloning Quarkus JBang catalog"
 if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
   git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/jbang-catalog.git work/jbang-catalog
