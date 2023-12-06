@@ -108,3 +108,6 @@ echo "Enabling protection"
 if [[ $BRANCH == "main" ]]; then
   ./togglemainprotection.java --disable=false
 fi
+
+echo "Cleaning up work/quickstarts directory at the end"
+rm -rf work/quickstarts

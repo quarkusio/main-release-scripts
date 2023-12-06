@@ -18,3 +18,6 @@ fi
 pushd work/quarkus/docs
 QUARKUS_WEB_SITE_PUSH=true QUARKUS_RELEASE=true ./sync-web-site.sh ${BRANCH}
 popd
+
+# Cleaning up target/web-site directory
+rm -rf work/quarkus/docs/target/web-site
