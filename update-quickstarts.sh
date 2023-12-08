@@ -28,7 +28,7 @@ rm -rf work/quickstarts
 
 echo "Cloning quickstart"
 if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
-  git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/quarkus-quickstarts.git work/quickstarts
+  git clone https://github.com/quarkusio/quarkus-quickstarts.git work/quickstarts
 else
   git clone git@github.com:quarkusio/quarkus-quickstarts.git work/quickstarts
 fi

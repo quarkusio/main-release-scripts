@@ -23,7 +23,7 @@ rm -rf work/jbang-catalog
 
 echo "Cloning Quarkus JBang catalog"
 if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
-  git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/jbang-catalog.git work/jbang-catalog
+  git clone https://github.com/quarkusio/jbang-catalog.git work/jbang-catalog
 else
   git clone git@github.com:quarkusio/jbang-catalog.git work/jbang-catalog
 fi
