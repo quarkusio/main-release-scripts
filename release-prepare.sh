@@ -28,7 +28,7 @@ echo "Preparing release ${VERSION} on branch ${BRANCH}"
 
 echo "Cloning quarkus"
 if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
-  git clone https://${RELEASE_GITHUB_TOKEN}:@github.com/quarkusio/quarkus.git work/quarkus
+  git clone https://github.com/quarkusio/quarkus.git work/quarkus
 else
   git clone git@github.com:quarkusio/quarkus.git work/quarkus
 fi
