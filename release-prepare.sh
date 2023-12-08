@@ -46,7 +46,7 @@ if [ -z "${RELEASE_GITHUB_TOKEN}" ]; then
   export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
 fi
 
-./mvnw \
+env GITHUB_REPOSITORY="https://github.com/quarkusio/quarkus" ./mvnw \
   -e -B \
   clean install \
   -Dscan=false \
@@ -59,7 +59,7 @@ fi
   #-pl !integration-tests/gradle -pl !integration-tests/maven -pl !integration-tests/kubernetes/quarkus-standard-way -pl !integration-tests/kubernetes/maven-invoker-way  \
 
 echo "Enforcing releases"
-./mvnw -e -B -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce -Drules=requireReleaseVersion,requireReleaseDeps
+env GITHUB_REPOSITORY="https://github.com/quarkusio/quarkus" ./mvnw -e -B -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce -Drules=requireReleaseVersion,requireReleaseDeps
 
 echo "Alright, commit"
 git commit -am "[RELEASE] - Bump version to ${VERSION}"
