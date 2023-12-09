@@ -24,7 +24,7 @@ if [ -z "${RELEASE_GITHUB_TOKEN}" ]; then
   export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
 fi
 
-env GITHUB_REPOSITORY="https://github.com/quarkusio/quarkus" ./mvnw clean deploy \
+env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw clean deploy \
  -e -B \
  -Dscan=false \
  -Dgradle.cache.local.enabled=false \
