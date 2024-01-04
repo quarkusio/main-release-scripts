@@ -88,14 +88,17 @@ public class prerequisites implements Runnable {
             }
 
             micro = micro || (!isMain(branch) && !major);
+            boolean firstCrWithAutomatedRelease = releaseGitHubToken != null && isFirstCR(qualifier);
 
             if (!VERSION_PATTERN.matcher(branch).matches() && !isMain(branch)) {
                 fail("Branch " + branch + " is not a valid version (X.y)");
             }
-            try {
-                repository.getBranch(branch);
-            } catch (GHFileNotFoundException e) {
-                fail("Branch " + branch + " does not exist in the repository");
+            if (!firstCrWithAutomatedRelease) {
+                try {
+                    repository.getBranch(branch);
+                } catch (GHFileNotFoundException e) {
+                    fail("Branch " + branch + " does not exist in the repository");
+                }
             }
             System.out.println("Working on branch: " + branch);
 
@@ -155,7 +158,9 @@ public class prerequisites implements Runnable {
             }
 
             // Check there is a milestone with the right name
-            checkIfMilestoneExists(repository, newVersion);
+            if (!firstCrWithAutomatedRelease) {
+                checkIfMilestoneExists(repository, newVersion);
+            }
 
             // Completion
             new File("work/").mkdirs();
@@ -268,5 +273,9 @@ public class prerequisites implements Runnable {
 
     private static boolean isMain(String branch) {
         return "main".equals(branch);
+    }
+
+    private static boolean isFirstCR(String qualifier) {
+        return "CR1".equalsIgnoreCase(qualifier);
     }
 }
