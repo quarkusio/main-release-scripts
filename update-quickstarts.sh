@@ -57,10 +57,10 @@ if [[ $VERSION =~ .*\.0 ]]; then
   git reset --hard origin/development
 fi
 
-./mvnw -e -B versions:set-property -Dproperty="quarkus.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
-./mvnw -e -B versions:set-property -Dproperty="quarkus.platform.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
-./mvnw -e -B versions:set-property -Dproperty="quarkus-plugin.version" -DnewVersion="${VERSION}" -DgenerateBackupPoms=false
-./mvnw -e -B versions:set-property -Dproperty="quarkus.platform.group-id" -DnewVersion="io.quarkus.platform" -DgenerateBackupPoms=false
+find . -name pom.xml | xargs sed -ri "s@<quarkus.version>(.*)</quarkus.version>@<quarkus.version>${VERSION}</quarkus.version>@g"
+find . -name pom.xml | xargs sed -ri "s@<quarkus.platform.version>(.*)</quarkus.platform.version>@<quarkus.platform.version>${VERSION}</quarkus.platform.version>@g"
+find . -name pom.xml | xargs sed -ri "s@<quarkus-plugin.version>(.*)</quarkus-plugin.version>@<quarkus-plugin.version>${VERSION}</quarkus-plugin.version>@g"
+find . -name pom.xml | xargs sed -ri "s@<quarkus.platform.group-id>(.*)</quarkus.platform.group-id>@<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>@g"
 
 for quickstart in *-quickstart getting-started-*; do
   # Update `index.html` files:
