@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -185,7 +186,7 @@ public class postplatformrelease implements Runnable {
             "\n" +
             "Quarkus " + version + " has been released, and is now available from the Maven Central repository. The quickstarts and documentation have also been updated.\n" +
             "\n" +
-            "More information in the announcement blog post: https://quarkus.io/blog/quarkus-" + version.replace('.', '-') + "-released/.\n" +
+            "More information in the announcement blog post: https://quarkus.io/blog/quarkus-" + version.replace('.', '-').toLowerCase(Locale.ROOT) + "-released/.\n" +
             "\n";
         if (!majorChanges.isEmpty()) {
             announce += "* Major changes:\n" +
