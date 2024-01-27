@@ -102,7 +102,6 @@ public class prerequisites implements Runnable {
             }
             System.out.println("Working on branch: " + branch);
 
-            // Retrieve the last tag
             System.out.println("Listing tags of " + repository.getName());
             NavigableSet<ComparableVersion> tags = new TreeSet<>();
             tags.addAll(repository.listTags().toList().stream()
@@ -162,6 +161,15 @@ public class prerequisites implements Runnable {
                 checkIfMilestoneExists(repository, newVersion);
             }
 
+            System.out.println("Listing releases of " + repository.getName());
+            NavigableSet<ComparableVersion> releases = new TreeSet<>();
+            releases.addAll(repository.listReleases().toList().stream()
+                    .map(t -> t.getName())
+                    .map(n -> new ComparableVersion(n))
+                    .collect(Collectors.toList()));
+
+            releases = releases.descendingSet();
+
             // Completion
             new File("work/").mkdirs();
 
@@ -176,7 +184,7 @@ public class prerequisites implements Runnable {
                 new File("work/micro").createNewFile();
             }
 
-            if (maintenance || isMaintenance(branch, tags)) {
+            if (maintenance || isMaintenance(branch, releases)) {
                 System.out.println("Releasing a maintenance release");
                 new File("work/maintenance").createNewFile();
             }
