@@ -44,7 +44,9 @@ public class postplatformrelease implements Runnable {
         try {
             GitHub github;
             String releaseGitHubToken = System.getenv("RELEASE_GITHUB_TOKEN");
-            if (releaseGitHubToken != null && !releaseGitHubToken.isBlank()) {
+            boolean isInReleaseProcess = releaseGitHubToken != null && !releaseGitHubToken.isBlank();
+
+            if (isInReleaseProcess) {
                 github = new GitHubBuilder().withOAuthToken(releaseGitHubToken).build();
             } else {
                 github = GitHubBuilder.fromPropertyFile().build();
@@ -79,9 +81,9 @@ public class postplatformrelease implements Runnable {
                             e.printStackTrace();
                         }
                     });
-                createAnnounce(version, mergedIssues);
+                createAnnounce(version, mergedIssues, isInReleaseProcess);
             } else {
-                createAnnounce(version, issues);
+                createAnnounce(version, issues, isInReleaseProcess);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,7 +145,7 @@ public class postplatformrelease implements Runnable {
         return description;
     }
 
-    private static void createAnnounce(String version, List<GHIssue> issues) throws IOException {
+    private static void createAnnounce(String version, List<GHIssue> issues, boolean isInReleaseProcess) throws IOException {
         List<GHIssue> majorChanges = issues.stream()
                 .filter(i -> i.getLabels().stream().anyMatch(l -> RELEASE_NOTEWORTHY_FEATURE_LABEL.equals(l.getName())))
                 .sorted((i1, i2) -> i1.getTitle().compareToIgnoreCase(i2.getTitle()))
@@ -217,7 +219,7 @@ public class postplatformrelease implements Runnable {
         announce += "The Quarkus dev team\n";
         announce += "```\n\n";
 
-        Files.writeString(Path.of("announce-" + version + ".txt"), announce, StandardCharsets.UTF_8);
+        Files.writeString(isInReleaseProcess ? Path.of("work", "announce-" + version + ".txt") : Path.of("announce-" + version + ".txt"), announce, StandardCharsets.UTF_8);
     }
 
     private static boolean isFirstFinal(String version) {
