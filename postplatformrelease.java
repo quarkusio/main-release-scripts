@@ -62,12 +62,17 @@ public class postplatformrelease implements Runnable {
             }
 
             GHMilestone milestone = milestoneOptional.get();
-
             List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
-
             createOrUpdateRelease(repository, issues, version);
 
-            if (isFirstFinal(version)) {
+            // sometimes, we release a .1 before for the first Platform release of a given minor
+            // it can be because we have a CVE to fix or because we found a major issue in
+            // the .0 before we shipped the Platform.
+            // in this case, we need to create the release for .0 anyway and include the major changes of
+            // it together with the ones from the preview releases into the .1 announcement
+            List<GHIssue> firstFinalIssuesIfNeeded = createFirstFinalReleaseIfNeeded(repository, version);
+
+            if (isFirstFinal(version) || !firstFinalIssuesIfNeeded.isEmpty()) {
                 final List<GHIssue> mergedIssues = new ArrayList<>();
 
                 // we need to merge issues from all preview releases
@@ -76,6 +81,7 @@ public class postplatformrelease implements Runnable {
                     .forEach(m -> {
                         try {
                             mergedIssues.addAll(repository.getIssues(GHIssueState.CLOSED, m));
+                            mergedIssues.addAll(firstFinalIssuesIfNeeded);
                         } catch (IOException e) {
                             System.err.println("Ignored issues for milestone " + m.getTitle());
                             e.printStackTrace();
@@ -108,6 +114,26 @@ public class postplatformrelease implements Runnable {
         System.out.println("Release " + version + " created - " + release.getHtmlUrl());
     }
 
+    private static List<GHIssue> createFirstFinalReleaseIfNeeded(GHRepository repository, String version) throws IOException {
+        if (isFirstMaintenanceRelease(version)) {
+            String firstFinalTag = getMinorVersion(version) + ".0";
+            GHRelease firstFinalRelease = repository.getReleaseByTagName(firstFinalTag);
+            if (firstFinalRelease == null) {
+                Optional<GHMilestone> firstFinalMilestoneOptional = repository.listMilestones(GHIssueState.CLOSED).toList().stream()
+                        .filter(m -> firstFinalTag.equals(m.getTitle()))
+                        .findFirst();
+                if (firstFinalMilestoneOptional.isPresent()) {
+                    List<GHIssue> firstFinalIssues = repository.getIssues(GHIssueState.CLOSED, firstFinalMilestoneOptional.get());
+                    createOrUpdateRelease(repository, firstFinalIssues, firstFinalTag);
+
+                    return firstFinalIssues;
+                }
+            }
+        }
+
+        return List.of();
+    }
+
     private static String issueTitle(GHIssue issue) {
         return "[#" + issue.getNumber() + "] " + issue.getTitle();
     }
@@ -126,6 +152,7 @@ public class postplatformrelease implements Runnable {
 
         List<GHIssue> majorChanges = issues.stream()
                 .filter(i -> i.getLabels().stream().anyMatch(l -> RELEASE_NOTEWORTHY_FEATURE_LABEL.equals(l.getName())))
+                .sorted((i1, i2) -> Integer.compare(i1.getNumber(), i2.getNumber()))
                 .collect(Collectors.toList());
         if (!majorChanges.isEmpty()) {
             descriptionSb.append("### Major changes\n\n");
@@ -135,9 +162,8 @@ public class postplatformrelease implements Runnable {
         }
 
         descriptionSb.append("\n### Complete changelog\n\n");
-        for (GHIssue issue : issues) {
-            descriptionSb.append("  * ").append(issueTitleInMarkdownEscaped(issue)).append("\n");
-        }
+        issues.stream().sorted((i1, i2) -> Integer.compare(i1.getNumber(), i2.getNumber()))
+            .forEach(i -> descriptionSb.append("  * ").append(issueTitleInMarkdownEscaped(i)).append("\n"));
 
         String description = descriptionSb.toString();
 
@@ -148,12 +174,12 @@ public class postplatformrelease implements Runnable {
     private static void createAnnounce(String version, List<GHIssue> issues, boolean isInReleaseProcess) throws IOException {
         List<GHIssue> majorChanges = issues.stream()
                 .filter(i -> i.getLabels().stream().anyMatch(l -> RELEASE_NOTEWORTHY_FEATURE_LABEL.equals(l.getName())))
-                .sorted((i1, i2) -> i1.getTitle().compareToIgnoreCase(i2.getTitle()))
+                .sorted((i1, i2) -> Integer.compare(i1.getNumber(), i2.getNumber()))
                 .collect(Collectors.toList());
         List<GHIssue> breakingChanges = issues.stream()
                 .filter(i -> i.getLabels().stream().anyMatch(l -> RELEASE_BREAKING_CHANGE_LABEL.equals(l.getName())))
                 .filter(i -> !majorChanges.stream().anyMatch(o -> o.getNumber() == i.getNumber()))
-                .sorted((i1, i2) -> i1.getTitle().compareToIgnoreCase(i2.getTitle()))
+                .sorted((i1, i2) -> Integer.compare(i1.getNumber(), i2.getNumber()))
                 .collect(Collectors.toList());
 
         String announce = "";
@@ -224,6 +250,10 @@ public class postplatformrelease implements Runnable {
 
     private static boolean isFirstFinal(String version) {
         return version.endsWith(".0") || version.endsWith(".0.Final");
+    }
+
+    private static boolean isFirstMaintenanceRelease(String version) {
+        return version.endsWith(".1");
     }
 
     private static String getVersion() throws IOException {
