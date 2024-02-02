@@ -71,8 +71,9 @@ public class postplatformrelease implements Runnable {
             // in this case, we need to create the release for .0 anyway and include the major changes of
             // it together with the ones from the preview releases into the .1 announcement
             List<GHIssue> firstFinalIssuesIfNeeded = createFirstFinalReleaseIfNeeded(repository, version);
+            boolean dot1IsFirstFinalRelease = !firstFinalIssuesIfNeeded.isEmpty();
 
-            if (isFirstFinal(version) || !firstFinalIssuesIfNeeded.isEmpty()) {
+            if (isFirstFinal(version) || dot1IsFirstFinalRelease) {
                 final List<GHIssue> mergedIssues = new ArrayList<>();
 
                 // we need to merge issues from all preview releases
@@ -87,9 +88,9 @@ public class postplatformrelease implements Runnable {
                             e.printStackTrace();
                         }
                     });
-                createAnnounce(version, mergedIssues, isInReleaseProcess);
+                createAnnounce(version, mergedIssues, isInReleaseProcess, dot1IsFirstFinalRelease);
             } else {
-                createAnnounce(version, issues, isInReleaseProcess);
+                createAnnounce(version, issues, isInReleaseProcess, false);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -147,6 +148,10 @@ public class postplatformrelease implements Runnable {
                 ANNOTATION_PATTERN.matcher(issue.getTitle()).replaceAll("`$1`");
     }
 
+    private static String issueTitleInAsciidoc(GHIssue issue) {
+        return issue.getHtmlUrl() + "[#" + issue.getNumber() + "] - " + issue.getTitle();
+    }
+
     private static String createReleaseDescription(List<GHIssue> issues) throws IOException {
         StringBuilder descriptionSb = new StringBuilder();
 
@@ -171,7 +176,8 @@ public class postplatformrelease implements Runnable {
         return description;
     }
 
-    private static void createAnnounce(String version, List<GHIssue> issues, boolean isInReleaseProcess) throws IOException {
+    private static void createAnnounce(String version, List<GHIssue> issues, boolean isInReleaseProcess,
+            boolean dot1IsFirstFinalRelease) throws IOException {
         List<GHIssue> majorChanges = issues.stream()
                 .filter(i -> i.getLabels().stream().anyMatch(l -> RELEASE_NOTEWORTHY_FEATURE_LABEL.equals(l.getName())))
                 .sorted((i1, i2) -> Integer.compare(i1.getNumber(), i2.getNumber()))
@@ -185,19 +191,19 @@ public class postplatformrelease implements Runnable {
         String announce = "";
 
         if (!majorChanges.isEmpty()) {
-            announce += "### Newsworthy changes (in Markdown)\n\n";
+            announce += "### Newsworthy changes (in Asciidoc)\n\n";
             announce += "```\n";
             for (GHIssue majorChange : majorChanges) {
-                announce += "* " + issueTitleInMarkdown(majorChange) + "\n";
+                announce += "* " + issueTitleInAsciidoc(majorChange) + "\n";
             }
             announce += "```\n\n";
         }
 
         if (!breakingChanges.isEmpty()) {
-            announce += "### Other breaking changes (FYI, in Markdown)\n\n";
+            announce += "### Other breaking changes (FYI, in Asciidoc)\n\n";
             announce += "```\n";
             for (GHIssue breakingChange : breakingChanges) {
-                announce += "* " + issueTitleInMarkdown(breakingChange) + "\n";
+                announce += "* " + issueTitleInAsciidoc(breakingChange) + "\n";
             }
             announce += "```\n\n";
         }
@@ -233,7 +239,10 @@ public class postplatformrelease implements Runnable {
             "  </dependency>\n" +
             "\n";
 
-        if (isFirstFinal(version)) {
+        if (dot1IsFirstFinalRelease) {
+            announce += "* Changelogs are available from https://github.com/quarkusio/quarkus/releases/tag/" + getMinorVersion(version) + ".0.CR1, https://github.com/quarkusio/quarkus/releases/tag/" + getMinorVersion(version) + ".0, and https://github.com/quarkusio/quarkus/releases/tag/" + version + "\n";
+            announce += "* Download is available from https://github.com/quarkusio/quarkus/releases/tag/" + version + "\n";
+        } else if (isFirstFinal(version)) {
             announce += "* Changelogs are available from https://github.com/quarkusio/quarkus/releases/tag/" + version + ".CR1 and https://github.com/quarkusio/quarkus/releases/tag/" + version + "\n";
             announce += "* Download is available from https://github.com/quarkusio/quarkus/releases/tag/" + version + "\n";
         } else {
