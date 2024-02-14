@@ -251,6 +251,7 @@ public class postplatformrelease implements Runnable {
 
         announce += "* Documentation: https://quarkus.io\n";
         announce += "\n";
+        announce += "--\n";
         announce += "The Quarkus dev team\n";
         announce += "```\n\n";
 
