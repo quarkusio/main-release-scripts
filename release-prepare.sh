@@ -50,7 +50,9 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
   -e -B \
   clean install \
   -Dscan=false \
+  -Dno-build-cache \
   -Dgradle.cache.local.enabled=false \
+  -Dgradle.cache.remote.enabled=false \
   -Prelease \
   -DskipTests -DskipITs \
   -Ddokka \
