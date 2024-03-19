@@ -214,7 +214,11 @@ public class postplatformrelease implements Runnable {
 
         announce += "### Announcement email template\n\n";
 
-        announce += "Subject: `[RELEASE] Quarkus " + version + "`\n\n";
+        announce += "Subject:\n";
+        announce += "```\n";
+        announce += "[RELEASE] Quarkus " + version + "\n";
+        announce += "```\n";
+        announce += "Body:\n";
         announce += "```\n";
         announce += "Hello,\n" +
             "\n" +
