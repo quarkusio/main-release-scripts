@@ -57,8 +57,8 @@ EXCLUDE_DOCKERFILE_UPDATE_FOR_QUICKSTARTS="awt-graphics-rest-quickstart"
 cd work/quickstarts
 git checkout $BRANCH 2>/dev/null || git checkout -b $BRANCH development
 
-if [[ $VERSION =~ .*\.0 ]]; then
-  echo "Resetting ${BRANCH} to ${SOURCE_BRANCH}"
+if [ $BRANCH == "main" ] && [ $SOURCE_BRANCH != "main" ]; then
+  echo "Resetting main to ${SOURCE_BRANCH}"
   git reset --hard origin/${SOURCE_BRANCH}
 fi
 
