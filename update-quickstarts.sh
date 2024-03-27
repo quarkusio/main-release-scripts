@@ -14,8 +14,13 @@ if [ $# -eq 0 ]; then
   else
     BRANCH="main"
   fi
+  SOURCE_BRANCH=development
+elif [ $# -eq 1 ]; then
+  BRANCH=$1
+  SOURCE_BRANCH=development
 else
   BRANCH=$1
+  SOURCE_BRANCH=$2
 fi
 
 if [ -f work/preview ]; then
@@ -50,11 +55,11 @@ DOCKERFILES=(Dockerfile.jvm Dockerfile.legacy-jar Dockerfile.native Dockerfile.n
 EXCLUDE_DOCKERFILE_UPDATE_FOR_QUICKSTARTS="awt-graphics-rest-quickstart"
 
 cd work/quickstarts
-git checkout $BRANCH || (echo "Branch $BRANCH does not exist, please initialize it with the proper content before running this script" && exit 1)
+git checkout $BRANCH 2>/dev/null || git checkout -b $BRANCH development
 
 if [[ $VERSION =~ .*\.0 ]]; then
-  echo "Resetting main to development"
-  git reset --hard origin/development
+  echo "Resetting ${BRANCH} to ${SOURCE_BRANCH}"
+  git reset --hard origin/${SOURCE_BRANCH}
 fi
 
 find . -name pom.xml | xargs sed -ri "s@<quarkus.version>(.*)</quarkus.version>@<quarkus.version>${VERSION}</quarkus.version>@g"
