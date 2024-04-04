@@ -1,7 +1,7 @@
 //usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS io.quarkus.platform:quarkus-bom:3.2.2.Final@pom
+//DEPS io.quarkus.platform:quarkus-bom:3.9.2@pom
 //DEPS io.quarkus:quarkus-picocli
-//DEPS org.kohsuke:github-api:1.315
+//DEPS org.kohsuke:github-api:1.321
 
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
@@ -27,6 +27,7 @@ import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
+import org.kohsuke.github.GHReleaseBuilder.MakeLatest;
 
 import picocli.CommandLine.Command;
 
@@ -71,7 +72,7 @@ public class postplatformrelease implements Runnable {
 
             GHMilestone milestone = milestoneOptional.get();
             List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
-            createOrUpdateRelease(repository, issues, version);
+            createOrUpdateRelease(repository, issues, version, MakeLatest.TRUE);
 
             if (isFirstFinal(version) || dot1IsFirstFinalRelease) {
                 final List<GHIssue> mergedIssues = new ArrayList<>();
@@ -98,7 +99,7 @@ public class postplatformrelease implements Runnable {
         }
     }
 
-    private static void createOrUpdateRelease(GHRepository repository, List<GHIssue> issues, String version) throws IOException {
+    private static void createOrUpdateRelease(GHRepository repository, List<GHIssue> issues, String version, MakeLatest makeLatest) throws IOException {
         GHRelease release = repository.getReleaseByTagName(version);
 
         if (release != null) {
@@ -111,6 +112,7 @@ public class postplatformrelease implements Runnable {
             .name(version)
             .body(createReleaseDescription(issues))
             .prerelease(Files.exists(Path.of("work/preview")))
+            .makeLatest(makeLatest)
             .create();
         System.out.println("Release " + version + " created - " + release.getHtmlUrl());
     }
@@ -125,7 +127,7 @@ public class postplatformrelease implements Runnable {
                         .findFirst();
                 if (firstFinalMilestoneOptional.isPresent()) {
                     List<GHIssue> firstFinalIssues = repository.getIssues(GHIssueState.CLOSED, firstFinalMilestoneOptional.get());
-                    createOrUpdateRelease(repository, firstFinalIssues, firstFinalTag);
+                    createOrUpdateRelease(repository, firstFinalIssues, firstFinalTag, MakeLatest.FALSE);
 
                     return firstFinalIssues;
                 }
