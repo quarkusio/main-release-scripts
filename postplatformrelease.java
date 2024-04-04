@@ -61,10 +61,6 @@ public class postplatformrelease implements Runnable {
                 fail("Cannot find the CLOSED milestone " + version + ". Either the milestone does not exist or it is not closed.");
             }
 
-            GHMilestone milestone = milestoneOptional.get();
-            List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
-            createOrUpdateRelease(repository, issues, version);
-
             // sometimes, we release a .1 before for the first Platform release of a given minor
             // it can be because we have a CVE to fix or because we found a major issue in
             // the .0 before we shipped the Platform.
@@ -72,6 +68,10 @@ public class postplatformrelease implements Runnable {
             // it together with the ones from the preview releases into the .1 announcement
             List<GHIssue> firstFinalIssuesIfNeeded = createFirstFinalReleaseIfNeeded(repository, version);
             boolean dot1IsFirstFinalRelease = !firstFinalIssuesIfNeeded.isEmpty();
+
+            GHMilestone milestone = milestoneOptional.get();
+            List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
+            createOrUpdateRelease(repository, issues, version);
 
             if (isFirstFinal(version) || dot1IsFirstFinalRelease) {
                 final List<GHIssue> mergedIssues = new ArrayList<>();
