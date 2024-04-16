@@ -4,6 +4,7 @@
 //DEPS org.kohsuke:github-api:1.315
 //DEPS org.apache.maven:maven-artifact:3.9.6
 
+//JAVA 21
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
 
