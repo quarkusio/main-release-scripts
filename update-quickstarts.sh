@@ -23,11 +23,6 @@ else
   SOURCE_BRANCH=$2
 fi
 
-if [ -f work/preview ]; then
-  echo "We do not update the quickstarts for preview releases"
-  exit 1
-fi
-
 echo "Cleaning up work/quickstarts directory if exists"
 rm -rf work/quickstarts
 
