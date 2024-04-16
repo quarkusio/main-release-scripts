@@ -3,6 +3,7 @@
 //DEPS io.quarkus:quarkus-picocli
 //DEPS org.kohsuke:github-api:1.315
 
+//JAVA 21
 //JAVAC_OPTIONS -parameters
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
 
