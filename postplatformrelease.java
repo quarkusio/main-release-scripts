@@ -73,7 +73,8 @@ public class postplatformrelease implements Runnable {
 
             GHMilestone milestone = milestoneOptional.get();
             List<GHIssue> issues = repository.getIssues(GHIssueState.CLOSED, milestone);
-            createOrUpdateRelease(repository, issues, version, MakeLatest.TRUE);
+            MakeLatest makeLatest = Files.exists(Path.of("work/preview")) || Files.exists(Path.of("work/maintenance")) ? MakeLatest.FALSE : MakeLatest.TRUE;
+            createOrUpdateRelease(repository, issues, version, makeLatest);
 
             if (isFirstFinal(version) || dot1IsFirstFinalRelease) {
                 final List<GHIssue> mergedIssues = new ArrayList<>();
