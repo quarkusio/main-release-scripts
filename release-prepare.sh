@@ -53,6 +53,8 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
   -Dno-build-cache \
   -Dgradle.cache.local.enabled=false \
   -Dgradle.cache.remote.enabled=false \
+  -Ddevelocity.cache.local.enabled=false \
+  -Ddevelocity.cache.remote.enabled=false \
   -Prelease \
   -DskipTests -DskipITs \
   -Ddokka \
