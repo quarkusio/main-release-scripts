@@ -62,7 +62,7 @@ find . -name pom.xml | xargs sed -ri "s@<quarkus.platform.version>(.*)</quarkus.
 find . -name pom.xml | xargs sed -ri "s@<quarkus-plugin.version>(.*)</quarkus-plugin.version>@<quarkus-plugin.version>${VERSION}</quarkus-plugin.version>@g"
 find . -name pom.xml | xargs sed -ri "s@<quarkus.platform.group-id>(.*)</quarkus.platform.group-id>@<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>@g"
 
-for quickstart in *-quickstart getting-started-*; do
+for quickstart in *-quickstart getting-started*; do
   # Update `index.html` files:
   if [ -f ${quickstart}/src/main/resources/META-INF/resources/index.html ]; then
     # Update quickstarts that use the following template `<li>Quarkus Version: <code>xxx</code></li>`:
