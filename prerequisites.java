@@ -47,6 +47,9 @@ public class prerequisites implements Runnable {
     @Option(names = "--branch", description = "The branch to build the release on", required = true)
     String branch;
 
+    @Option(names = "--origin-branch", description = "The origin branch when creating the branch for CR1", defaultValue = "main")
+    String originBranch;
+
     @Option(names = "--qualifier", description = "The qualifier to add to the version. Example: CR1.", defaultValue = "")
     String qualifier;
 
@@ -193,6 +196,8 @@ public class prerequisites implements Runnable {
             if (!newVersion.endsWith(".Final") && !FINAL_VERSION_PATTERN.matcher(newVersion).matches()) {
                 new File("work/preview").createNewFile();
             }
+
+            Files.writeString(Path.of("work", "originBranch"), originBranch);
         } catch (IOException e) {
             e.printStackTrace();
             fail("IOException was thrown, please see above");
