@@ -26,6 +26,7 @@ git pull origin ${PLATFORM_BRANCH}
 
 ./check-version.sh $VERSION
 
+git tag -d $VERSION || true
 git push --delete origin $VERSION || true
 
 env GITHUB_REPOSITORY="quarkusio/quarkus-platform" ./mvnw release:prepare release:perform -DdevelopmentVersion=999-SNAPSHOT -DreleaseVersion=$VERSION -Dtag=$VERSION -DperformRelease -Prelease,releaseNexus,releaseCi -DskipTests -Darguments=-DskipTests
