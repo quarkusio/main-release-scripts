@@ -64,6 +64,8 @@ public class prerequisites implements Runnable {
     @Option(names = "--maintenance", description = "Is it a maintenance branch?", defaultValue = "false")
     boolean maintenance;
 
+    @Option(names = "--lts", description = "Is it a LTS branch?", defaultValue = "false")
+    boolean lts;
 
     @Override
     public void run() {
@@ -191,6 +193,11 @@ public class prerequisites implements Runnable {
             if (maintenance || isMaintenance(branch, releases)) {
                 System.out.println("Releasing a maintenance release");
                 new File("work/maintenance").createNewFile();
+            }
+
+            if (lts) {
+                System.out.println("Releasing a LTS release");
+                new File("work/lts").createNewFile();
             }
 
             if (!newVersion.endsWith(".Final") && !FINAL_VERSION_PATTERN.matcher(newVersion).matches()) {

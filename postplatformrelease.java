@@ -220,13 +220,13 @@ public class postplatformrelease implements Runnable {
 
         announce += "Subject:\n";
         announce += "```\n";
-        announce += "[RELEASE] Quarkus " + version + "\n";
+        announce += "[RELEASE] Quarkus " + version + (isLts() ? " LTS" : "" ) + "\n";
         announce += "```\n";
         announce += "Body:\n";
         announce += "```\n";
         announce += "Hello,\n" +
             "\n" +
-            "Quarkus " + version + " has been released, and is now available from the Maven Central repository. The quickstarts and documentation have also been updated.\n" +
+            "Quarkus " + version + (isLts() ? " LTS" : "" ) + " has been released, and is now available from the Maven Central repository. The quickstarts and documentation have also been updated.\n" +
             "\n" +
             "More information in the announcement blog post: https://quarkus.io/blog/quarkus-" + version.replace('.', '-').toLowerCase(Locale.ROOT) + "-released/.\n" +
             "\n";
@@ -276,6 +276,10 @@ public class postplatformrelease implements Runnable {
 
     private static String getVersion() throws IOException {
         return Files.readString(Path.of("work", "newVersion"), StandardCharsets.UTF_8).trim();
+    }
+
+    private static boolean isLts() {
+        return Files.exists("work/lts");
     }
 
     private static String getMinorVersion(String version) {
