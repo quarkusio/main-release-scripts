@@ -279,7 +279,7 @@ public class postplatformrelease implements Runnable {
     }
 
     private static boolean isLts() {
-        return Files.exists("work/lts");
+        return Files.exists(Path.of("work/lts"));
     }
 
     private static String getMinorVersion(String version) {
