@@ -50,7 +50,7 @@ DOCKERFILES=(Dockerfile.jvm Dockerfile.legacy-jar Dockerfile.native Dockerfile.n
 EXCLUDE_DOCKERFILE_UPDATE_FOR_QUICKSTARTS="awt-graphics-rest-quickstart"
 
 cd work/quickstarts
-git checkout $BRANCH 2>/dev/null || (git checkout development && git checkout -b $BRANCH)
+git checkout $BRANCH 2>/dev/null || (git checkout ${SOURCE_BRANCH} && git checkout -b $BRANCH)
 
 if [ $BRANCH == "main" ] && [ $SOURCE_BRANCH != "main" ]; then
   echo "Resetting main to ${SOURCE_BRANCH}"
