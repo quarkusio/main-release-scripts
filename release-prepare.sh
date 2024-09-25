@@ -26,6 +26,8 @@ fi
 
 echo "Preparing release ${VERSION} on branch ${BRANCH}"
 
+rm -rf work/quarkus
+
 echo "Cloning quarkus"
 if [ -n "${RELEASE_GITHUB_TOKEN}" ]; then
   git clone https://github.com/quarkusio/quarkus.git work/quarkus
