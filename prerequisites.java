@@ -1,7 +1,7 @@
 //usr/bin/env jbang "$0" "$@" ; exit $?
-//DEPS io.quarkus.platform:quarkus-bom:3.6.0@pom
+//DEPS io.quarkus.platform:quarkus-bom:3.17.7@pom
 //DEPS io.quarkus:quarkus-picocli
-//DEPS org.kohsuke:github-api:1.315
+//DEPS org.kohsuke:github-api:1.326
 //DEPS org.apache.maven:maven-artifact:3.9.6
 
 //JAVA 21
@@ -16,8 +16,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.List;
 import java.util.NavigableSet;
 import java.util.Optional;
 import java.util.Set;
@@ -30,7 +28,6 @@ import org.kohsuke.github.GHIssueState;
 import org.kohsuke.github.GHMilestone;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
-import org.kohsuke.github.GHTag;
 import org.kohsuke.github.GitHub;
 import org.kohsuke.github.GitHubBuilder;
 import org.apache.maven.artifact.versioning.ComparableVersion;
@@ -64,6 +61,9 @@ public class prerequisites implements Runnable {
     @Option(names = "--maintenance", description = "Is it a maintenance branch?", defaultValue = "false")
     boolean maintenance;
 
+    @Option(names = "--emergency", description = "Should we release an emergency release?", defaultValue = "false")
+    boolean emergency;
+
     @Option(names = "--lts", description = "Is it a LTS branch?", defaultValue = "false")
     boolean lts;
 
@@ -71,12 +71,27 @@ public class prerequisites implements Runnable {
     public void run() {
         if (new File("work").exists()) {
             fail("Work directory exists, please execute cleanup.sh before releasing");
+            return;
         }
         if (major && micro) {
-            fail("Should be either micro or major, can't be both");
+            fail("A release may not be both a major release and a micro release");
+            return;
+        }
+        if (emergency && !qualifier.isBlank()) {
+            fail("May not release emergency release with qualifier defined");
+            return;
+        }
+        if (emergency && major) {
+            fail("A release may not be both a major release and an emergency release");
+            return;
+        }
+        if (emergency && micro) {
+            fail("A release may not be both a micro release and an emergency release");
+            return;
         }
         if (branch.isBlank()) {
             fail("Branch should be defined with --branch <branch>");
+            return;
         }
 
         try {
@@ -92,20 +107,26 @@ public class prerequisites implements Runnable {
             if (major) {
                 System.out.println("Releasing a major release");
             }
+            if (emergency) {
+                System.out.println("Releasing an emergency release");
+            }
 
             micro = micro || (!isMain(branch) && !major);
             boolean firstCrWithAutomatedRelease = releaseGitHubToken != null && isFirstCR(qualifier);
 
             if (!VERSION_PATTERN.matcher(branch).matches() && !isMain(branch)) {
                 fail("Branch " + branch + " is not a valid version (X.y)");
+                return;
             }
             if (!firstCrWithAutomatedRelease) {
                 try {
                     repository.getBranch(branch);
                 } catch (GHFileNotFoundException e) {
                     fail("Branch " + branch + " does not exist in the repository");
+                    return;
                 }
             }
+
             System.out.println("Working on branch: " + branch);
 
             System.out.println("Listing tags of " + repository.getName());
@@ -119,6 +140,7 @@ public class prerequisites implements Runnable {
 
             if (tags.isEmpty()) {
                 fail("No tags in repository " + repository.getName());
+                return;
             }
             ComparableVersion tag = null;
             if (isMain(branch)) {
@@ -145,7 +167,7 @@ public class prerequisites implements Runnable {
                 }
 
                 // All good, compute new version.
-                newVersion = computeNewVersion(tag.toString(), micro, major, qualifier);
+                newVersion = computeNewVersion(tag.toString(), micro, major, emergency, qualifier);
             } else {
                 if (!qualifier.isBlank()) {
                     newVersion = branch + ".0." + qualifier;
@@ -236,14 +258,20 @@ public class prerequisites implements Runnable {
         System.exit(2);
     }
 
-    private static String computeNewVersion(String previousVersion, boolean micro, boolean major, String qualifier) {
+    private static String computeNewVersion(String previousVersion, boolean micro, boolean major, boolean emergency, String qualifier) {
         String[] segments = previousVersion.split("\\.");
         if (segments.length < 3) {
             fail("Invalid version " + previousVersion + ", number of segments must be at least 3, found: " + segments.length);
         }
 
         String newVersion;
-        if (micro) {
+        if (emergency) {
+            if (segments.length >= 4) {
+                newVersion = segments[0] + "." + segments[1] + "." + segments[2] + "." + (Integer.parseInt(segments[3]) + 1);
+            } else {
+                newVersion = segments[0] + "." + segments[1] + "." + segments[2] + ".1";
+            }
+        } else if (micro) {
             if (segments.length == 3) {
                 // previous version was a final, we increment
                 newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
