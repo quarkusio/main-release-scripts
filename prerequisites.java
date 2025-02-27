@@ -39,7 +39,7 @@ import picocli.CommandLine.Option;
 public class prerequisites implements Runnable {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+$");
-    private static final Pattern FINAL_VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+$");
+    private static final Pattern FINAL_VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?$");
 
     @Option(names = "--branch", description = "The branch to build the release on", required = true)
     String branch;
