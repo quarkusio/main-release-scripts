@@ -40,6 +40,7 @@ public class prerequisites implements Runnable {
 
     private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+$");
     private static final Pattern FINAL_VERSION_PATTERN = Pattern.compile("^[0-9]+\\.[0-9]+\\.[0-9]+(\\.[0-9]+)?$");
+    private static final Pattern DIGITS_PATTERN = Pattern.compile("\\d+");
 
     @Option(names = "--branch", description = "The branch to build the release on", required = true)
     String branch;
@@ -277,7 +278,10 @@ public class prerequisites implements Runnable {
                 newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
             } else {
                 String previousQualifier = segments[3];
-                if ("Final".equals(previousQualifier)) {
+                // we are post an emergency release
+                if (DIGITS_PATTERN.matcher(previousQualifier).matches()) {
+                    newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
+                } else if ("Final".equals(previousQualifier)) {
                     // previous version was a final, we increment
                     newVersion = segments[0] + "." + segments[1] + "." + (Integer.parseInt(segments[2]) + 1);
                     // previous version had a Final qualifier so we are releasing a micro of a version with Final qualifiers
