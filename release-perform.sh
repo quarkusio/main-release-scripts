@@ -26,6 +26,8 @@ fi
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw clean deploy \
  -e -B \
+ -s .github/release-settings.xml \
+ -Dnjord.autoPublish \
  -Dscan=false \
  -Dno-build-cache \
  -Dgradle.cache.local.enabled=false \

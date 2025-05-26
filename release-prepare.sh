@@ -50,6 +50,7 @@ fi
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
   -e -B \
+  -s .github/release-settings.xml \
   clean install \
   -Dscan=false \
   -Dno-build-cache \
@@ -65,7 +66,7 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
   #-pl !integration-tests/gradle -pl !integration-tests/maven -pl !integration-tests/kubernetes/quarkus-standard-way -pl !integration-tests/kubernetes/maven-invoker-way  \
 
 echo "Enforcing releases"
-env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw -e -B -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.0.0-M3:enforce -Drules=requireReleaseVersion,requireReleaseDeps
+env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw -e -B -s .github/release-settings.xml -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.5.0:enforce -Drules=requireReleaseVersion,requireReleaseDeps
 
 echo "Alright, commit"
 git commit -am "[RELEASE] - Bump version to ${VERSION}"
