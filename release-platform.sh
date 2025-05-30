@@ -29,7 +29,7 @@ git pull origin ${PLATFORM_BRANCH}
 git tag -d $VERSION || true
 git push --delete origin $VERSION || true
 
-env GITHUB_REPOSITORY="quarkusio/quarkus-platform" ./mvnw -s .github/release-settings.xml release:prepare release:perform -DdevelopmentVersion=999-SNAPSHOT -DreleaseVersion=$VERSION -Dtag=$VERSION -DperformRelease -Prelease,releaseCi -DskipTests -Darguments="-DskipTests -Dnjord.autoPublish -Dnjord.publishingType=AUTOMATIC"
+env GITHUB_REPOSITORY="quarkusio/quarkus-platform" ./mvnw -s .github/release-settings.xml release:prepare release:perform -DdevelopmentVersion=999-SNAPSHOT -DreleaseVersion=$VERSION -Dtag=$VERSION -DperformRelease -Prelease,releaseCi -DskipTests -Darguments="-DskipTests -Dnjord.autoPublish -Dnjord.publishingType=AUTOMATIC -Dnjord.waitForStates -Dnjord.waitForStatesTimeout=PT15M -Dnjord.waitForStatesSleep=PT1M"
 
 popd
 
