@@ -29,7 +29,7 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw clean deploy \
  -s .github/release-settings.xml \
  -Dnjord.autoPublish \
  -Dnjord.publishingType=AUTOMATIC \
- -Dnjord.waitForStates -Dnjord.waitForStatesTimeout=PT20M -Dnjord.waitForStatesSleep=PT1M \
+ -Dnjord.waitForStates -Dnjord.waitForStatesTimeout=PT30M -Dnjord.waitForStatesSleep=PT1M \
  -Dscan=false \
  -Dno-build-cache \
  -Dgradle.cache.local.enabled=false \
