@@ -24,12 +24,12 @@ if [ -z "${RELEASE_GITHUB_TOKEN}" ]; then
   export MAVEN_OPTS="-Dmaven.repo.local=$(realpath ../repository)"
 fi
 
+NJORD_BASEDIR=$(realpath ../njord)
+
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw clean deploy \
+ -Dnjord.basedir=${NJORD_BASEDIR} \
  -e -B \
  -s .github/release-settings.xml \
- -Dnjord.autoPublish \
- -Dnjord.publishingType=AUTOMATIC \
- -Dnjord.waitForStates -Dnjord.waitForStatesTimeout=PT30M -Dnjord.waitForStatesSleep=PT1M \
  -Dscan=false \
  -Dno-build-cache \
  -Dgradle.cache.local.enabled=false \
@@ -42,7 +42,5 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw clean deploy \
  -Prelease \
  -Ddokka \
  -Dno-test-modules
-
-# -Ddocumentation-pdf
 
 cd ../.. || exit 2
