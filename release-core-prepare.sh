@@ -62,8 +62,6 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
   -DskipTests -DskipITs \
   -Ddokka \
   -Dno-test-modules
-  # not useful anymore as we skip all the ITS
-  #-pl !integration-tests/gradle -pl !integration-tests/maven -pl !integration-tests/kubernetes/quarkus-standard-way -pl !integration-tests/kubernetes/maven-invoker-way  \
 
 echo "Enforcing releases"
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw -e -B -s .github/release-settings.xml -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.5.0:enforce -Drules=requireReleaseVersion,requireReleaseDeps
