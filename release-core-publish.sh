@@ -20,7 +20,7 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw njord:${NJORD_VERSION}:publish 
  -Ddrop=false \
  -Dnjord.autoPublish \
  -Dnjord.publishingType=AUTOMATIC \
- -Dnjord.waitForStates -Dnjord.waitForStatesTimeout=PT40M -Dnjord.waitForStatesSleep=PT5M \
+ -Dnjord.waitForStates -Dnjord.waitForStatesTimeout=PT60M -Dnjord.waitForStatesSleep=PT5M \
  -Dscan=false
 
 popd
