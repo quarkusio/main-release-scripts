@@ -18,7 +18,6 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw njord:${NJORD_VERSION}:publish 
  -s .github/release-settings.xml \
  -N \
  -Ddrop=false \
- -Dnjord.autoPublish \
  -Dnjord.publishingType=AUTOMATIC \
  -Dscan=false
 
