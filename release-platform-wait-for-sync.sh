@@ -18,7 +18,7 @@ env GITHUB_REPOSITORY="quarkusio/quarkus-platform" ./mvnw njord:${NJORD_VERSION}
  -s .github/release-settings.xml \
  -N \
  -Ddrop=false \
- -Dwait=true -DwaitDelay=PT10M -DwaitTimeout=PT60M -DwaitSleep=PT5M \
+ -Dwait=true -DwaitDelay=PT20M -DwaitTimeout=PT60M -DwaitSleep=PT5M \
  -Dscan=false
 
 popd
