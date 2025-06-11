@@ -28,7 +28,7 @@ NJORD_BASEDIR=$(realpath ../njord)
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw clean deploy \
  -Dnjord.basedir=${NJORD_BASEDIR} \
- -e -B \
+ -e -B -ntp \
  -s .github/release-settings.xml \
  -Dscan=false \
  -Dno-build-cache \

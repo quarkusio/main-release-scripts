@@ -14,11 +14,11 @@ NJORD_VERSION=$(xmlstarlet sel -t -v '/extensions/extension[groupId/text()="eu.m
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw njord:${NJORD_VERSION}:check-artifacts-availability \
  -Dnjord.basedir=${NJORD_BASEDIR} \
- -e -B \
+ -e -B -ntp \
  -s .github/release-settings.xml \
  -N \
  -Ddrop=false \
- -Dwait=true -DwaitDelay=PT40M -DwaitTimeout=PT120M -DwaitSleep=PT5M \
+ -Dwait=true -DwaitDelay=PT30M -DwaitTimeout=PT120M -DwaitSleep=PT5M \
  -Dscan=false
 
 popd

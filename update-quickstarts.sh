@@ -86,7 +86,7 @@ for quickstart in *-quickstart getting-started*; do
   fi
 done
 
-./mvnw -e -B -s .github/mvn-settings.xml clean install -DskipTests -DskipITs
+./mvnw -e -B -ntp -s .github/mvn-settings.xml clean install -DskipTests -DskipITs
 
 echo "Alright, let's commit!"
 git commit -am "[RELEASE] - Bump version to ${VERSION}"

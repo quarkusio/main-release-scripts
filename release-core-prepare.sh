@@ -49,7 +49,7 @@ if [ -z "${RELEASE_GITHUB_TOKEN}" ]; then
 fi
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
-  -e -B \
+  -e -B -ntp \
   -s .github/release-settings.xml \
   clean install \
   -Dscan=false \
@@ -64,7 +64,7 @@ env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw \
   -Dno-test-modules
 
 echo "Enforcing releases"
-env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw -e -B -s .github/release-settings.xml -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.5.0:enforce -Drules=requireReleaseVersion,requireReleaseDeps
+env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw -e -B -ntp -s .github/release-settings.xml -Dscan=false -Dgradle.cache.local.enabled=false -Dno-test-modules org.apache.maven.plugins:maven-enforcer-plugin:3.5.0:enforce -Drules=requireReleaseVersion,requireReleaseDeps
 
 echo "Alright, commit"
 git commit -am "[RELEASE] - Bump version to ${VERSION}"
