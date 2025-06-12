@@ -31,6 +31,6 @@ git push --delete origin $VERSION || true
 
 NJORD_BASEDIR=$(realpath ../njord)
 
-env GITHUB_REPOSITORY="quarkusio/quarkus-platform" ./mvnw -e -B -ntp -s .github/release-settings.xml release:prepare release:perform -DdevelopmentVersion=999-SNAPSHOT -DreleaseVersion=$VERSION -Dtag=$VERSION -DperformRelease -Prelease,releaseCi -DskipTests -Darguments="-DskipTests -Dnjord.basedir=${NJORD_BASEDIR} -Dnjord.autoPublish -Dnjord.autoDrop=false -Dnjord.publishingType=AUTOMATIC -Dnjord.waitForStates -Dnjord.waitForStatesWaitStates=pending -Dnjord.waitForStatesTimeout=PT30M -Dnjord.waitForStatesSleep=PT2M"
+env GITHUB_REPOSITORY="quarkusio/quarkus-platform" ./mvnw -e -B -ntp -s .github/release-settings.xml release:prepare release:perform -DdevelopmentVersion=999-SNAPSHOT -DreleaseVersion=$VERSION -Dtag=$VERSION -DperformRelease -Prelease,releaseCi -DskipTests -Darguments="-Prelease,releaseCi -DskipTests -Dnjord.basedir=${NJORD_BASEDIR} -Dnjord.autoPublish -Dnjord.autoDrop=false -Dnjord.publishingType=AUTOMATIC -Dnjord.waitForStates -Dnjord.waitForStatesWaitStates=pending -Dnjord.waitForStatesTimeout=PT30M -Dnjord.waitForStatesSleep=PT2M"
 
 popd
