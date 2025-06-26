@@ -228,7 +228,7 @@ public class postplatformrelease implements Runnable {
             "\n" +
             "Quarkus " + version + (isLts() ? " LTS" : "" ) + " has been released, and is now available from the Maven Central repository. The quickstarts and documentation have also been updated.\n" +
             "\n" +
-            "More information in the announcement blog post: https://quarkus.io/blog/quarkus-" + version.replace('.', '-').toLowerCase(Locale.ROOT) + "-released/.\n" +
+            "More information in the announcement blog post: https://quarkus.io/blog/quarkus-" + (isFirstFinal(version) ? getMinorVersion(version) : version).replace('.', '-').toLowerCase(Locale.ROOT) + "-released/.\n" +
             "\n";
         if (!majorChanges.isEmpty()) {
             announce += "* Major changes:\n" +
