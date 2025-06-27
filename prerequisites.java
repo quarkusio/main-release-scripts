@@ -45,6 +45,9 @@ public class prerequisites implements Runnable {
     @Option(names = "--branch", description = "The branch to build the release on", required = true)
     String branch;
 
+    @Option(names = "--emergency-release-core-branch", description = "The core branch to build an emergency release", defaultValue = "")
+    String emergencyReleaseCoreBranch;
+
     @Option(names = "--origin-branch", description = "The origin branch when creating the branch for CR1", defaultValue = "main")
     String originBranch;
 
@@ -90,6 +93,10 @@ public class prerequisites implements Runnable {
             fail("A release may not be both a micro release and an emergency release");
             return;
         }
+        if (!emergencyReleaseCoreBranch.isBlank() && !emergency) {
+            fail("An emergency release core branch can only be defined if the release is an emergency release");
+            return;
+        }
         if (branch.isBlank()) {
             fail("Branch should be defined with --branch <branch>");
             return;
@@ -128,7 +135,18 @@ public class prerequisites implements Runnable {
                 }
             }
 
-            System.out.println("Working on branch: " + branch);
+            if (!emergencyReleaseCoreBranch.isBlank()) {
+                try {
+                    repository.getBranch(emergencyReleaseCoreBranch);
+                } catch (GHFileNotFoundException e) {
+                    fail("Emergency release Core branch " + emergencyReleaseCoreBranch + " does not exist in the Core repository");
+                    return;
+                }
+                System.out.println("Working on branch for Core: " + emergencyReleaseCoreBranch);
+                System.out.println("Working on branch for the rest: " + branch);
+            } else {
+                System.out.println("Working on branch: " + branch);
+            }
 
             System.out.println("Listing tags of " + repository.getName());
             NavigableSet<ComparableVersion> tags = new TreeSet<>();
@@ -207,6 +225,15 @@ public class prerequisites implements Runnable {
 
             System.out.println("Writing " + branch + " into the 'work/branch' file");
             Files.writeString(Path.of("work", "branch"), branch, StandardCharsets.UTF_8);
+
+            if (!emergencyReleaseCoreBranch.isBlank()) {
+                System.out.println("Writing " + emergencyReleaseCoreBranch + " into the 'work/emergency-release-core-branch' file");
+                Files.writeString(Path.of("work", "emergency-release-core-branch"), emergencyReleaseCoreBranch, StandardCharsets.UTF_8);
+            }
+            if (emergency) {
+                System.out.println("Releasing an emergency release");
+                new File("work/emergency").createNewFile();
+            }
 
             if (micro) {
                 System.out.println("Releasing a micro release");

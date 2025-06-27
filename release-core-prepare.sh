@@ -18,7 +18,9 @@ else
   VERSION=$1
 fi
 
-if [ -f work/branch ]; then
+if [ -f work/emergency-release-core-branch ]; then
+  BRANCH=$(cat work/emergency-release-core-branch)
+elif [ -f work/branch ]; then
   BRANCH=$(cat work/branch)
 else
   BRANCH="HEAD"
