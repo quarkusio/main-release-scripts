@@ -84,7 +84,7 @@ public class postplatformrelease implements Runnable {
                     .filter(m -> m.getTitle().startsWith(getMinorVersion(version) + ".0"))
                     .forEach(m -> {
                         try {
-                            mergedIssues.addAll(repository.getIssues(GHIssueState.CLOSED, m));
+                            mergedIssues.addAll(repository.getIssues(GHIssueState.ALL, m));
                             mergedIssues.addAll(firstFinalIssuesIfNeeded);
                         } catch (IOException e) {
                             System.err.println("Ignored issues for milestone " + m.getTitle());
