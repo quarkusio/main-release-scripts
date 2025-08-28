@@ -56,6 +56,9 @@ public class postplatformrelease implements Runnable {
             GHRepository repository = getProject(github);
 
             String version = getVersion();
+
+            System.out.println("Releasing version " + version);
+
             Optional<GHMilestone> milestoneOptional = repository.listMilestones(GHIssueState.CLOSED).toList().stream()
                     .filter(m -> version.equals(m.getTitle()))
                     .findFirst();
@@ -77,20 +80,25 @@ public class postplatformrelease implements Runnable {
             createOrUpdateRelease(repository, issues, version, makeLatest);
 
             if (isFirstFinal(version) || dot1IsFirstFinalRelease) {
+                System.out.println("Releasing first final");
                 final List<GHIssue> mergedIssues = new ArrayList<>();
 
                 // we need to merge issues from all preview releases
-                repository.listMilestones(GHIssueState.CLOSED).toList().stream()
+                repository.listMilestones(GHIssueState.ALL).toList().stream()
                     .filter(m -> m.getTitle().startsWith(getMinorVersion(version) + ".0"))
                     .forEach(m -> {
                         try {
-                            mergedIssues.addAll(repository.getIssues(GHIssueState.ALL, m));
-                            mergedIssues.addAll(firstFinalIssuesIfNeeded);
+                            List<GHIssue> milestoneIssues = repository.getIssues(GHIssueState.CLOSED, m);
+
+                            System.out.println("Merging " + milestoneIssues.size() + " issues from milestone: " + m.getTitle());
+
+                            mergedIssues.addAll(milestoneIssues);
                         } catch (IOException e) {
                             System.err.println("Ignored issues for milestone " + m.getTitle());
                             e.printStackTrace();
                         }
                     });
+                mergedIssues.addAll(firstFinalIssuesIfNeeded);
                 createAnnounce(version, mergedIssues, isInReleaseProcess, dot1IsFirstFinalRelease);
             } else {
                 createAnnounce(version, issues, isInReleaseProcess, false);
