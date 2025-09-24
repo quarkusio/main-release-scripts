@@ -85,7 +85,7 @@ public class postplatformrelease implements Runnable {
 
                 // we need to merge issues from all preview releases
                 repository.listMilestones(GHIssueState.ALL).toList().stream()
-                    .filter(m -> m.getTitle().startsWith(getMinorVersion(version) + ".0"))
+                    .filter(m -> m.getTitle().startsWith(getMinorVersion(version) + "."))
                     .forEach(m -> {
                         try {
                             List<GHIssue> milestoneIssues = repository.getIssues(GHIssueState.CLOSED, m);
@@ -98,7 +98,7 @@ public class postplatformrelease implements Runnable {
                             e.printStackTrace();
                         }
                     });
-                mergedIssues.addAll(firstFinalIssuesIfNeeded);
+                System.out.println("Merged issues: " + mergedIssues.size());
                 createAnnounce(version, mergedIssues, isInReleaseProcess, dot1IsFirstFinalRelease);
             } else {
                 createAnnounce(version, issues, isInReleaseProcess, false);
@@ -190,6 +190,14 @@ public class postplatformrelease implements Runnable {
 
     private static void createAnnounce(String version, List<GHIssue> issues, boolean isInReleaseProcess,
             boolean dot1IsFirstFinalRelease) throws IOException {
+        System.out.println("Merged issues:");
+        System.out.println();
+        for (GHIssue issue : issues) {
+            System.out.println("- Issue #" + issue.getNumber() + ": " + issue.getLabels().stream().map(l -> l.getName()).sorted().toList());
+        }
+        System.out.println();
+
+
         List<GHIssue> majorChanges = issues.stream()
                 .filter(i -> i.getLabels().stream().anyMatch(l -> RELEASE_NOTEWORTHY_FEATURE_LABEL.equals(l.getName())))
                 .sorted((i1, i2) -> Integer.compare(i1.getNumber(), i2.getNumber()))
