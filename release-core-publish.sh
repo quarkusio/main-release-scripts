@@ -14,12 +14,11 @@ NJORD_VERSION=$(xmlstarlet sel -t -v '/extensions/extension[groupId/text()="eu.m
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw njord:${NJORD_VERSION}:publish \
  -Dnjord.basedir=${NJORD_BASEDIR} \
+ -Dnjord.publishingType=AUTOMATIC \
+ -Dnjord.waitForStates -Dnjord.waitForStatesWaitStates=pending -Dnjord.waitForStatesTimeout=PT40M -Dnjord.waitForStatesSleep=PT2M \
  -e -B -ntp \
  -s .github/release-settings.xml \
  -N \
- -Ddrop=false \
- -Dnjord.publishingType=AUTOMATIC \
- -Dnjord.waitForStates -Dnjord.waitForStatesWaitStates=pending -Dnjord.waitForStatesTimeout=PT40M -Dnjord.waitForStatesSleep=PT2M \
  -Dscan=false
 
 popd
