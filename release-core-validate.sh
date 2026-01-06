@@ -14,11 +14,10 @@ NJORD_VERSION=$(xmlstarlet sel -t -v '/extensions/extension[groupId/text()="eu.m
 
 env GITHUB_REPOSITORY="quarkusio/quarkus" ./mvnw njord:${NJORD_VERSION}:validate \
  -Dnjord.basedir=${NJORD_BASEDIR} \
+ -Dnjord.details \
  -e -B -ntp \
  -s .github/release-settings.xml \
  -N \
- -Ddrop=false \
- -Ddetails \
  -Dscan=false
 
 popd
