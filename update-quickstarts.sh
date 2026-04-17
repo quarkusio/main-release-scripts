@@ -33,10 +33,10 @@ else
   git clone git@github.com:quarkusio/quarkus-quickstarts.git work/quickstarts
 fi
 
-echo "Disabling protection"
-if [[ $BRANCH == "main" ]]; then
-  ./togglemainprotection.java --disable=true
-fi
+#echo "Disabling protection"
+#if [[ $BRANCH == "main" ]]; then
+#  ./togglemainprotection.java --disable=true
+#fi
 
 echo "Generating Quarkus template to fetch the updated Dockerfile resources"
 TEMPLATE_FOLDER=$(mktemp -d)
@@ -104,10 +104,10 @@ echo "Deleting generated Quarkus template"
 rm -rf $TEMPLATE_FOLDER
 
 cd ../.. || exit 2
-echo "Enabling protection"
-if [[ $BRANCH == "main" ]]; then
-  ./togglemainprotection.java --disable=false
-fi
+#echo "Enabling protection"
+#if [[ $BRANCH == "main" ]]; then
+#  ./togglemainprotection.java --disable=false
+#fi
 
 echo "Cleaning up work/quickstarts directory at the end"
 rm -rf work/quickstarts

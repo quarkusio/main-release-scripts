@@ -22,3 +22,6 @@ announce-*.txt
 *.swo
 
 .vscode/
+
+*.iml
+.idea
