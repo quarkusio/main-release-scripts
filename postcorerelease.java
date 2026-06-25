@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Date;
 import java.util.Optional;
 
 import org.kohsuke.github.GHIssueState;
@@ -55,6 +56,7 @@ public class postcorerelease implements Runnable {
     }
 
     private static void closeOldMilestone(GHMilestone milestone, String version) throws IOException {
+        milestone.setDueOn(new Date());
         milestone.close();
         System.out.println("Milestone " + version + " closed - " + milestone.getHtmlUrl());
     }
