@@ -13,6 +13,12 @@ MINOR=$(echo "${BRANCH}" | cut -d. -f2)
 NEXT_MINOR=$((MINOR + 1))
 NEXT_BRANCH="${MAJOR}.${NEXT_MINOR}"
 
+if [[ "${BRANCH}" == 3.* ]]; then
+  DEV_BRANCH="3.x"
+else
+  DEV_BRANCH="main"
+fi
+
 if [ -f work/lts ]; then
   LTS_MARKER=" **LTS**"
 else
@@ -34,10 +40,16 @@ fi
 pushd ${WORKING_DIRECTORY}
 
 # Update Migration-Guides.asciidoc:
-# - Change current first line: [main] -> [BRANCH], "will be BRANCH" -> "soon to be released"
-# - Insert new first line for NEXT_BRANCH
-sed -i "s|\(Migration-Guide-${BRANCH}\)\[main\].*|\1[${BRANCH}]${LTS_MARKER} - soon to be released|" Migration-Guides.asciidoc
-sed -i "1i\\ * https://github.com/quarkusio/quarkus/wiki/Migration-Guide-${NEXT_BRANCH}[main] - will be ${NEXT_BRANCH}" Migration-Guides.asciidoc
+# - Change [DEV_BRANCH] -> [BRANCH], "will be BRANCH" -> "soon to be released"
+# - Insert new line for NEXT_BRANCH
+sed -i "s|\(Migration-Guide-${BRANCH}\)\[${DEV_BRANCH}\].*|\1[${BRANCH}]${LTS_MARKER} - soon to be released|" Migration-Guides.asciidoc
+if [ "${DEV_BRANCH}" = "3.x" ]; then
+  # Insert after the [main] line
+  sed -i "/\[main\]/a\\ * https://github.com/quarkusio/quarkus/wiki/Migration-Guide-${NEXT_BRANCH}[${DEV_BRANCH}] - will be ${NEXT_BRANCH}" Migration-Guides.asciidoc
+else
+  # Insert at the top
+  sed -i "1i\\ * https://github.com/quarkusio/quarkus/wiki/Migration-Guide-${NEXT_BRANCH}[${DEV_BRANCH}] - will be ${NEXT_BRANCH}" Migration-Guides.asciidoc
+fi
 
 # Create new migration guide for the next version
 cat > "Migration-Guide-${NEXT_BRANCH}.asciidoc" << 'EOF'
@@ -51,8 +63,13 @@ Items marked below with :gear: :white_check_mark: are automatically handled by h
 ====
 EOF
 
-# Update _Sidebar.md: update "Next version in main" link
-sed -i "/<!-- NEXT_VERSION -->/{n;s|.*|- [${NEXT_BRANCH}](https://github.com/quarkusio/quarkus/wiki/Migration-Guide-${NEXT_BRANCH})|}" _Sidebar.md
+# Update _Sidebar.md: update next version link
+if [ "${DEV_BRANCH}" = "3.x" ]; then
+  SIDEBAR_MARKER="<!-- NEXT_VERSION_3X -->"
+else
+  SIDEBAR_MARKER="<!-- NEXT_VERSION -->"
+fi
+sed -i "/${SIDEBAR_MARKER}/{n;s|.*|- [${NEXT_BRANCH}](https://github.com/quarkusio/quarkus/wiki/Migration-Guide-${NEXT_BRANCH})|}" _Sidebar.md
 
 echo "Alright, let's commit!"
 git add -A
