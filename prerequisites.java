@@ -321,7 +321,12 @@ public class prerequisites implements Runnable {
         } else if (major) {
             newVersion = (Integer.parseInt(segments[0]) + 1) + ".0.0";
         } else {
-            newVersion = segments[0] + "." + (Integer.parseInt(segments[1]) + 1) + ".0";
+            if (segments.length >= 4 && !DIGITS_PATTERN.matcher(segments[3]).matches() && !"Final".equals(segments[3])) {
+                // previous version was a preview (Alpha/Beta/CR), keep the base version
+                newVersion = segments[0] + "." + segments[1] + "." + segments[2];
+            } else {
+                newVersion = segments[0] + "." + (Integer.parseInt(segments[1]) + 1) + ".0";
+            }
         }
         if (!qualifier.isBlank()) {
             newVersion = newVersion + "." + qualifier;
