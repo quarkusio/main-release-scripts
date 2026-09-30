@@ -204,7 +204,9 @@ public class prerequisites implements Runnable {
             }
 
             // Check there is a milestone with the right name
-            if (!firstCrWithAutomatedRelease) {
+            boolean preCr1WithAutomatedRelease = releaseGitHubToken != null && !qualifier.isBlank()
+                    && new ComparableVersion(qualifier).compareTo(new ComparableVersion("CR1")) < 0;
+            if (!firstCrWithAutomatedRelease && !preCr1WithAutomatedRelease) {
                 checkIfMilestoneExists(repository, newVersion);
             }
 
