@@ -36,10 +36,19 @@ if [[ -z $(git status --porcelain) ]]; then
   exit 0
 fi
 
+PR_BRANCH="update-guarded-branches-${BRANCH}"
+
+echo "Creating branch ${PR_BRANCH}"
+git checkout -b "${PR_BRANCH}"
+
 echo "Alright, let's commit!"
 git commit -am "Add ${BRANCH} LTS to guarded branches"
 echo "Pushing changes"
-git push origin main
+git push origin "${PR_BRANCH}"
+
+echo "Creating pull request"
+PR_URL=$(GH_TOKEN="${RELEASE_GITHUB_TOKEN}" gh pr create --title "Add ${BRANCH} LTS to guarded branches" --body "Add ${BRANCH} LTS to guarded branches." --base main --head "${PR_BRANCH}")
+echo "Pull request created: ${PR_URL}"
 
 popd
 
