@@ -110,27 +110,47 @@ public class postplatformrelease implements Runnable {
     }
 
     private static void createOrUpdateRelease(GHRepository repository, List<GHIssue> issues, String version, MakeLatest makeLatest) throws IOException {
-        GHRelease release = repository.getReleaseByTagName(version);
+        GHRelease release = findRelease(repository, version);
 
         if (release != null) {
-            release.update().body(createReleaseDescription(issues)).update();
+            // the release might have been created by JReleaser so we make sure it is named after the version
+            release.update().name(version).body(createReleaseDescription(issues)).update();
             System.out.println("Release " + version + " updated - " + release.getHtmlUrl());
             return;
         }
 
+        // releases are immutable once published so we create them as drafts:
+        // the CLI archives are attached to the release afterwards and the release is published at the end of the process
         release = repository.createRelease(version)
             .name(version)
             .body(createReleaseDescription(issues))
+            .draft(true)
             .prerelease(Files.exists(Path.of("work/preview")))
             .makeLatest(makeLatest)
             .create();
-        System.out.println("Release " + version + " created - " + release.getHtmlUrl());
+        System.out.println("Release " + version + " created as draft - " + release.getHtmlUrl());
+    }
+
+    /**
+     * {@link GHRepository#getReleaseByTagName(String)} only returns published releases so we also look for drafts
+     * in the most recent releases: a draft is created during the release process so it is always one of the latest.
+     */
+    private static GHRelease findRelease(GHRepository repository, String version) throws IOException {
+        GHRelease release = repository.getReleaseByTagName(version);
+        if (release != null) {
+            return release;
+        }
+
+        return repository.listReleases().withPageSize(20).iterator().nextPage().stream()
+                .filter(r -> version.equals(r.getTagName()))
+                .findFirst()
+                .orElse(null);
     }
 
     private static List<GHIssue> createFirstFinalReleaseIfNeeded(GHRepository repository, String version) throws IOException {
         if (isFirstMaintenanceRelease(version)) {
             String firstFinalTag = getMinorVersion(version) + ".0";
-            GHRelease firstFinalRelease = repository.getReleaseByTagName(firstFinalTag);
+            GHRelease firstFinalRelease = findRelease(repository, firstFinalTag);
             if (firstFinalRelease == null) {
                 Optional<GHMilestone> firstFinalMilestoneOptional = repository.listMilestones(GHIssueState.CLOSED).toList().stream()
                         .filter(m -> firstFinalTag.equals(m.getTitle()))

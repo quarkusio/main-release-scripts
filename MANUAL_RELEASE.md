@@ -278,8 +278,18 @@ It won't do anything for maintenance releases (i.e. releases started with `--mai
 
 **Do not execute it when releasing old branches**
 
+GitHub releases are immutable once published so the CLI is published in two steps.
+
+Before publishing the GitHub release, create the draft GitHub release with the CLI archives attached:
+
 ```
-./publish-cli.sh
+./publish-cli.sh release
+```
+
+Then, once the GitHub release has been published, publish the packages (SDKMAN, Homebrew, Chocolatey):
+
+```
+./publish-cli.sh publish
 ```
 
 ## Update the quickstarts
